@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SenseiTradeBot</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        /* Основные стили */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #17212B;
+            margin: 0;
+            padding: 20px;
+            color: #FFFFFF;
+        }
+        h1 {
+            color: #FFFFFF;
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: #2F3D4A;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .notification {
+            padding: 15px;
+            margin: 10px 0;
+            background: #2B5278;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .notification:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .notification strong {
+            color: #FFFFFF;
+            font-size: 1.1rem;
+        }
+        .notification p {
+            margin: 5px 0 0;
+            color: #8294A1;
+        }
+        .buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        button {
+            background: #2B5278;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.3s, transform 0.2s;
+            flex: 1 1 45%; /* Гибкие кнопки */
+        }
+        button:hover {
+            background: #3B6388;
+            transform: translateY(-2px);
+        }
+        button:active {
+            transform: translateY(0);
+        }
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            color: #8294A1;
+            font-size: 0.9rem;
+        }
+        .settings {
+            display: none; /* Скрываем настройки по умолчанию */
+            margin-top: 20px;
+        }
+        .settings label {
+            display: block;
+            margin: 10px 0;
+            font-size: 1rem;
+            color: #FFFFFF;
+        }
+        .settings input[type="checkbox"] {
+            margin-right: 10px;
+        }
+        .partner-program {
+            display: none; /* Скрываем раздел партнёрской программы по умолчанию */
+            margin-top: 20px;
+        }
+        .partner-program h2 {
+            color: #FFFFFF;
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+        }
+        .partner-program p {
+            color: #8294A1;
+            margin-bottom: 10px;
+        }
+        .partner-program .referral-link {
+            background: #2B5278;
+            padding: 10px;
+            border-radius: 8px;
+            color: #FFFFFF;
+            word-break: break-all;
+            margin-bottom: 15px;
+        }
+        .partner-program .stats {
+            background: #2B5278;
+            padding: 10px;
+            border-radius: 8px;
+            color: #FFFFFF;
+        }
+        .partner-program .bonus-info {
+            margin-top: 15px;
+            color: #8294A1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>SenseiTradeBot</h1>
+        <div id="notifications">
+            <!-- Уведомления будут добавляться сюда -->
+            <div class="notification">
+                <strong>Бот Пампа и Дампа</strong>
+                <p>Памп BTC/USDT обнаружен! (10:32)</p>
+            </div>
+            <div class="notification">
+                <strong>Скринер Ликвидаций</strong>
+                <p>Ликвидации ETH/USDT выше нормы. (10:30)</p>
+            </div>
+            <div class="notification">
+                <strong>Бот Открытого интереса</strong>
+                <p>Открытый интерес BTC/USDT вырос. (10:25)</p>
+            </div>
+        </div>
+        <div class="buttons">
+            <button onclick="refreshNotifications()">Обновить</button>
+            <button onclick="openSettings()">Настройки</button>
+            <button onclick="openPartnerProgram()">Партнерская программа</button>
+            <button onclick="sendFeedback()">Отправить отзыв</button>
+            <button onclick="contactSupport()">Написать в поддержку</button>
+        </div>
+        <div id="settings" class="settings">
+            <h2>Настройки уведомлений</h2>
+            <label>
+                <input type="checkbox" id="bot1" checked> Бот Пампа и Дампа
+            </label>
+            <label>
+                <input type="checkbox" id="bot2" checked> Скринер Ликвидаций
+            </label>
+            <label>
+                <input type="checkbox" id="bot3" checked> Бот Открытого интереса
+            </label>
+            <button onclick="saveSettings()">Сохранить</button>
+        </div>
+        <div id="partnerProgram" class="partner-program">
+            <h2>Партнерская программа</h2>
+            <p>Приглашайте друзей и получайте бонусы за каждую покупку, которую они совершают!</p>
+            <div class="referral-link">
+                Ваша реферальная ссылка: <span id="referralLink">https://t.me/SenseiTradeBot?start=ref12345</span>
+            </div>
+            <div class="stats">
+                <p>Приглашено пользователей: <strong id="invitedUsers">5</strong></p>
+                <p>Заработано бонусов: <strong id="totalBonuses">$25</strong></p>
+            </div>
+            <div class="bonus-info">
+                <p><strong>Условия программы:</strong></p>
+                <ul>
+                    <li>Вы получаете <strong>10%</strong> от каждой оплаты подписки приглашённого пользователя в течение <strong>6 месяцев</strong>.</li>
+                    <li>Если вы пригласите <strong>10 и более</strong> пользователей, ваш бонус увеличивается до <strong>15%</strong> с каждого приглашённого.</li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer">
+            &copy; 2023 SenseiTradeBot. Все права защищены.
+        </div>
+    </div>
+
+    <script>
+        // Данные для партнёрской программы (можно заменить на данные с сервера)
+        let invitedUsers = 5; // Количество приглашённых пользователей
+        let totalBonuses = 25; // Заработанные бонусы в долларах
+
+        // Функция для обновления уведомлений
+        function refreshNotifications() {
+            alert("Загрузка новых уведомлений...");
+            // Здесь можно добавить запрос к API для получения новых данных
+        }
+
+        // Функция для открытия настроек
+        function openSettings() {
+            const settingsDiv = document.getElementById("settings");
+            settingsDiv.style.display = "block"; // Показываем настройки
+            document.getElementById("partnerProgram").style.display = "none"; // Скрываем партнёрскую программу
+        }
+
+        // Функция для открытия партнёрской программы
+        function openPartnerProgram() {
+            const partnerProgramDiv = document.getElementById("partnerProgram");
+            partnerProgramDiv.style.display = "block"; // Показываем партнёрскую программу
+            document.getElementById("settings").style.display = "none"; // Скрываем настройки
+
+            // Обновляем статистику
+            document.getElementById("invitedUsers").textContent = invitedUsers;
+            document.getElementById("totalBonuses").textContent = `$${totalBonuses}`;
+        }
+
+        // Функция для сохранения настроек
+        function saveSettings() {
+            const bot1 = document.getElementById("bot1").checked;
+            const bot2 = document.getElementById("bot2").checked;
+            const bot3 = document.getElementById("bot3").checked;
+
+            // Проверка, что хотя бы один бот включен
+            if (!bot1 && !bot2 && !bot3) {
+                alert("Должен быть включен хотя бы один бот!");
+                return;
+            }
+
+            // Сохраняем настройки (можно отправить на сервер или сохранить локально)
+            alert("Настройки сохранены!");
+            document.getElementById("settings").style.display = "none"; // Скрываем настройки
+        }
+
+        // Функция для отправки отзыва
+        function sendFeedback() {
+            const feedback = prompt("Напишите ваш отзыв:");
+            if (feedback) {
+                Telegram.WebApp.sendData(feedback);
+                Telegram.WebApp.close();
+            }
+        }
+
+        // Функция для связи с поддержкой
+        function contactSupport() {
+            const supportUsername = "CryptoTechSupport"; // Имя пользователя поддержки
+            const supportUrl = `https://t.me/${supportUsername}`; // Ссылка на поддержку
+            window.open(supportUrl, "_blank"); // Открыть в новой вкладке
+        }
+    </script>
+</body>
+</html>
