@@ -3,31 +3,34 @@
 <head>
     <title>SenseiTradeBot</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         /* Основные стили */
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #17212B;
             margin: 0;
-            padding: 20px;
+            padding: 0;
             color: #FFFFFF;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
         }
         h1 {
             color: #FFFFFF;
             text-align: center;
-            font-size: 2.5rem;
-            margin-bottom: 20px;
+            font-size: 1.5rem;
+            margin: 10px 0;
+            padding: 10px;
         }
         .container {
-            max-width: 600px;
-            margin: 0 auto;
-            background: #2F3D4A;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px;
         }
         .notification {
-            padding: 15px;
+            padding: 10px;
             margin: 10px 0;
             background: #2B5278;
             border-radius: 8px;
@@ -40,46 +43,90 @@
         }
         .notification strong {
             color: #FFFFFF;
-            font-size: 1.1rem;
+            font-size: 1rem;
         }
         .notification p {
             margin: 5px 0 0;
             color: #8294A1;
+            font-size: 0.9rem;
         }
         .buttons {
             display: flex;
-            justify-content: space-between;
-            margin-top: 20px;
-            flex-wrap: wrap;
-            gap: 10px;
+            justify-content: space-around;
+            background: #2F3D4A;
+            padding: 10px;
+            border-top: 1px solid #444;
+            position: sticky;
+            bottom: 0;
+            z-index: 100;
         }
-        button {
+        .buttons button {
             background: #2B5278;
             color: white;
             border: none;
-            padding: 10px 20px;
+            padding: 10px;
             border-radius: 8px;
             cursor: pointer;
             font-size: 1rem;
             transition: background 0.3s, transform 0.2s;
-            flex: 1 1 45%; /* Гибкие кнопки */
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 5px;
         }
-        button:hover {
+        .buttons button:hover {
             background: #3B6388;
             transform: translateY(-2px);
         }
-        button:active {
+        .buttons button:active {
             transform: translateY(0);
+        }
+        .buttons button i {
+            font-size: 1.2rem;
         }
         .footer {
             text-align: center;
-            margin-top: 20px;
+            padding: 10px;
             color: #8294A1;
-            font-size: 0.9rem;
+            font-size: 0.8rem;
+            background: #2F3D4A;
+            border-top: 1px solid #444;
         }
-        .settings {
-            display: none; /* Скрываем настройки по умолчанию */
-            margin-top: 20px;
+        .modal {
+            display: none; /* Скрываем подменю по умолчанию */
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #2F3D4A;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            width: 90%;
+            max-width: 400px;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .modal-header h2 {
+            color: #FFFFFF;
+            font-size: 1.5rem;
+            margin: 0;
+        }
+        .modal-header .close-btn {
+            background: none;
+            border: none;
+            color: #FFFFFF;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        .modal-header .close-btn:hover {
+            color: #FF6F61;
         }
         .settings label {
             display: block;
@@ -89,15 +136,6 @@
         }
         .settings input[type="checkbox"] {
             margin-right: 10px;
-        }
-        .partner-program {
-            display: none; /* Скрываем раздел партнёрской программы по умолчанию */
-            margin-top: 20px;
-        }
-        .partner-program h2 {
-            color: #FFFFFF;
-            font-size: 1.5rem;
-            margin-bottom: 15px;
         }
         .partner-program p {
             color: #8294A1;
@@ -121,35 +159,82 @@
             margin-top: 15px;
             color: #8294A1;
         }
+        .overlay {
+            display: none; /* Скрываем оверлей по умолчанию */
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
     </style>
 </head>
 <body>
+    <h1>SenseiTradeBot</h1>
     <div class="container">
-        <h1>SenseiTradeBot</h1>
         <div id="notifications">
-            <!-- Уведомления будут добавляться сюда -->
-            <div class="notification">
+            <!-- Уведомления от ботов -->
+            <div class="bot-notifications">
                 <strong>Бот Пампа и Дампа</strong>
-                <p>Памп BTC/USDT обнаружен! (10:32)</p>
+                <div class="notification">
+                    <p>Памп BTC/USDT обнаружен! (10:32)</p>
+                </div>
+                <div class="notification">
+                    <p>Памп ETH/USDT обнаружен! (10:30)</p>
+                </div>
+                <div class="notification">
+                    <p>Памп SOL/USDT обнаружен! (10:25)</p>
+                </div>
             </div>
-            <div class="notification">
+            <div class="bot-notifications">
                 <strong>Скринер Ликвидаций</strong>
-                <p>Ликвидации ETH/USDT выше нормы. (10:30)</p>
+                <div class="notification">
+                    <p>Ликвидации BTC/USDT выше нормы. (10:32)</p>
+                </div>
+                <div class="notification">
+                    <p>Ликвидации ETH/USDT выше нормы. (10:30)</p>
+                </div>
+                <div class="notification">
+                    <p>Ликвидации SOL/USDT выше нормы. (10:25)</p>
+                </div>
             </div>
-            <div class="notification">
+            <div class="bot-notifications">
                 <strong>Бот Открытого интереса</strong>
-                <p>Открытый интерес BTC/USDT вырос. (10:25)</p>
+                <div class="notification">
+                    <p>Открытый интерес BTC/USDT вырос. (10:32)</p>
+                </div>
+                <div class="notification">
+                    <p>Открытый интерес ETH/USDT вырос. (10:30)</p>
+                </div>
+                <div class="notification">
+                    <p>Открытый интерес SOL/USDT вырос. (10:25)</p>
+                </div>
             </div>
         </div>
-        <div class="buttons">
-            <button onclick="refreshNotifications()">Обновить</button>
-            <button onclick="openSettings()">Настройки</button>
-            <button onclick="openPartnerProgram()">Партнерская программа</button>
-            <button onclick="sendFeedback()">Отправить отзыв</button>
-            <button onclick="contactSupport()">Написать в поддержку</button>
-        </div>
-        <div id="settings" class="settings">
+    </div>
+    <div class="buttons">
+        <button onclick="refreshNotifications()" title="Обновить"><i class="fas fa-sync-alt"></i></button>
+        <button onclick="openSettings()" title="Настройки"><i class="fas fa-cog"></i></button>
+        <button onclick="openPartnerProgram()" title="Партнерская программа"><i class="fas fa-handshake"></i></button>
+        <button onclick="sendFeedback()" title="Отправить отзыв"><i class="fas fa-comment"></i></button>
+        <button onclick="contactSupport()" title="Написать в поддержку"><i class="fas fa-headset"></i></button>
+    </div>
+    <div class="footer">
+        &copy; 2023 SenseiTradeBot. Все права защищены.
+    </div>
+
+    <!-- Оверлей для затемнения фона -->
+    <div class="overlay" id="overlay"></div>
+
+    <!-- Модальное окно настроек -->
+    <div class="modal" id="settingsModal">
+        <div class="modal-header">
             <h2>Настройки уведомлений</h2>
+            <button class="close-btn" onclick="closeModal('settingsModal')">&times;</button>
+        </div>
+        <div class="settings">
             <label>
                 <input type="checkbox" id="bot1" checked> Бот Пампа и Дампа
             </label>
@@ -161,8 +246,15 @@
             </label>
             <button onclick="saveSettings()">Сохранить</button>
         </div>
-        <div id="partnerProgram" class="partner-program">
+    </div>
+
+    <!-- Модальное окно партнёрской программы -->
+    <div class="modal" id="partnerProgramModal">
+        <div class="modal-header">
             <h2>Партнерская программа</h2>
+            <button class="close-btn" onclick="closeModal('partnerProgramModal')">&times;</button>
+        </div>
+        <div class="partner-program">
             <p>Приглашайте друзей и получайте бонусы за каждую покупку, которую они совершают!</p>
             <div class="referral-link">
                 Ваша реферальная ссылка: <span id="referralLink">https://t.me/SenseiTradeBot?start=ref12345</span>
@@ -179,15 +271,12 @@
                 </ul>
             </div>
         </div>
-        <div class="footer">
-            &copy; 2023 SenseiTradeBot. Все права защищены.
-        </div>
     </div>
 
     <script>
-        // Данные для партнёрской программы (можно заменить на данные с сервера)
-        let invitedUsers = 5; // Количество приглашённых пользователей
-        let totalBonuses = 25; // Заработанные бонусы в долларах
+        // Инициализация Telegram WebApp
+        const tg = Telegram.WebApp;
+        tg.ready();
 
         // Функция для обновления уведомлений
         function refreshNotifications() {
@@ -197,20 +286,26 @@
 
         // Функция для открытия настроек
         function openSettings() {
-            const settingsDiv = document.getElementById("settings");
-            settingsDiv.style.display = "block"; // Показываем настройки
-            document.getElementById("partnerProgram").style.display = "none"; // Скрываем партнёрскую программу
+            const settingsModal = document.getElementById("settingsModal");
+            const overlay = document.getElementById("overlay");
+            settingsModal.style.display = "block";
+            overlay.style.display = "block";
         }
 
         // Функция для открытия партнёрской программы
         function openPartnerProgram() {
-            const partnerProgramDiv = document.getElementById("partnerProgram");
-            partnerProgramDiv.style.display = "block"; // Показываем партнёрскую программу
-            document.getElementById("settings").style.display = "none"; // Скрываем настройки
+            const partnerProgramModal = document.getElementById("partnerProgramModal");
+            const overlay = document.getElementById("overlay");
+            partnerProgramModal.style.display = "block";
+            overlay.style.display = "block";
+        }
 
-            // Обновляем статистику
-            document.getElementById("invitedUsers").textContent = invitedUsers;
-            document.getElementById("totalBonuses").textContent = `$${totalBonuses}`;
+        // Функция для закрытия модального окна
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            const overlay = document.getElementById("overlay");
+            modal.style.display = "none";
+            overlay.style.display = "none";
         }
 
         // Функция для сохранения настроек
@@ -227,7 +322,7 @@
 
             // Сохраняем настройки (можно отправить на сервер или сохранить локально)
             alert("Настройки сохранены!");
-            document.getElementById("settings").style.display = "none"; // Скрываем настройки
+            closeModal('settingsModal');
         }
 
         // Функция для отправки отзыва
