@@ -9,7 +9,7 @@
         /* Основные стили */
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-image: url('http://213.171.14.107/root/static/images/background-image.png'); /* Путь к изображению */
+            background-image: url('ваше-изображение.jpg'); /* Путь к изображению */
             background-size: cover; /* Растягиваем изображение на весь экран */
             background-position: center; /* Центрируем изображение */
             background-repeat: no-repeat; /* Запрещаем повторение изображения */
@@ -26,16 +26,21 @@
             font-size: 1.5rem;
             margin: 10px 0;
             padding: 10px;
+            background: rgba(23, 33, 43, 0.8); /* Полупрозрачный фон для заголовка */
+            border-radius: 8px;
         }
         .container {
             flex: 1;
             overflow-y: auto;
             padding: 10px;
+            background: rgba(47, 61, 74, 0.8); /* Полупрозрачный фон для контейнера */
+            border-radius: 12px;
+            margin: 10px;
         }
         .notification {
             padding: 10px;
             margin: 10px 0;
-            background: #2B5278;
+            background: rgba(43, 82, 120, 0.9); /* Полупрозрачный фон для уведомлений */
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
             transition: transform 0.2s, box-shadow 0.2s;
@@ -56,7 +61,7 @@
         .buttons {
             display: flex;
             justify-content: space-around;
-            background: #2F3D4A;
+            background: rgba(47, 61, 74, 0.9); /* Полупрозрачный фон для кнопок */
             padding: 10px;
             border-top: 1px solid #444;
             position: sticky;
@@ -93,7 +98,7 @@
             padding: 10px;
             color: #8294A1;
             font-size: 0.8rem;
-            background: #2F3D4A;
+            background: rgba(47, 61, 74, 0.9); /* Полупрозрачный фон для футера */
             border-top: 1px solid #444;
         }
         .modal {
@@ -125,8 +130,10 @@
             background: none;
             border: none;
             color: #FFFFFF;
-            font-size: 1.5rem;
+            font-size: 1rem; /* Уменьшаем размер кнопки */
             cursor: pointer;
+            padding: 5px;
+            margin: -10px -10px 0 0; /* Сдвигаем кнопку в правый верхний угол */
         }
         .modal-header .close-btn:hover {
             color: #FF6F61;
@@ -162,6 +169,79 @@
             margin-top: 15px;
             color: #8294A1;
         }
+        .partner-program .withdraw-button {
+            margin-top: 15px;
+            text-align: center;
+        }
+        .partner-program .withdraw-button button {
+            background: #2B5278;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.3s, transform 0.2s;
+        }
+        .partner-program .withdraw-button button:hover {
+            background: #3B6388;
+            transform: translateY(-2px);
+        }
+        .partner-program .withdraw-button button:active {
+            transform: translateY(0);
+        }
+        .withdraw-modal {
+            display: none; /* Скрываем модальное окно вывода по умолчанию */
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #2F3D4A;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            width: 90%;
+            max-width: 400px;
+        }
+        .withdraw-modal label {
+            display: block;
+            margin: 10px 0;
+            font-size: 1rem;
+            color: #FFFFFF;
+        }
+        .withdraw-modal input[type="text"],
+        .withdraw-modal select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            border: 1px solid #444;
+            background: #1E2A36;
+            color: #FFFFFF;
+        }
+        .withdraw-modal button {
+            background: #2B5278;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.3s, transform 0.2s;
+            width: 100%;
+        }
+        .withdraw-modal button:hover {
+            background: #3B6388;
+            transform: translateY(-2px);
+        }
+        .withdraw-modal button:active {
+            transform: translateY(0);
+        }
+        .withdraw-modal button:disabled {
+            background: #1E2A36;
+            cursor: not-allowed;
+        }
         .overlay {
             display: none; /* Скрываем оверлей по умолчанию */
             position: fixed;
@@ -172,6 +252,19 @@
             background: rgba(0, 0, 0, 0.5);
             z-index: 999;
         }
+        .notification-popup {
+            display: none; /* Скрываем всплывающее уведомление по умолчанию */
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #2B5278;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            z-index: 1001;
+        }
     </style>
 </head>
 <body>
@@ -179,7 +272,7 @@
     <div class="container">
         <div id="notifications">
             <!-- Уведомления от ботов -->
-            <div class="bot-notifications">
+            <div id="bot1-notifications" class="bot-notifications">
                 <strong>Бот Пампа и Дампа</strong>
                 <div class="notification">
                     <p>Памп BTC/USDT обнаружен! (10:32)</p>
@@ -191,7 +284,7 @@
                     <p>Памп SOL/USDT обнаружен! (10:25)</p>
                 </div>
             </div>
-            <div class="bot-notifications">
+            <div id="bot2-notifications" class="bot-notifications">
                 <strong>Скринер Ликвидаций</strong>
                 <div class="notification">
                     <p>Ликвидации BTC/USDT выше нормы. (10:32)</p>
@@ -203,7 +296,7 @@
                     <p>Ликвидации SOL/USDT выше нормы. (10:25)</p>
                 </div>
             </div>
-            <div class="bot-notifications">
+            <div id="bot3-notifications" class="bot-notifications">
                 <strong>Бот Открытого интереса</strong>
                 <div class="notification">
                     <p>Открытый интерес BTC/USDT вырос. (10:32)</p>
@@ -265,6 +358,10 @@
             <div class="stats">
                 <p>Приглашено пользователей: <strong id="invitedUsers">5</strong></p>
                 <p>Заработано бонусов: <strong id="totalBonuses">$25</strong></p>
+                <p>Баланс средств: <strong id="balance">$50</strong></p>
+            </div>
+            <div class="withdraw-button">
+                <button id="withdrawButton" onclick="openWithdrawModal()">Запросить вывод</button>
             </div>
             <div class="bonus-info">
                 <p><strong>Условия программы:</strong></p>
@@ -276,10 +373,64 @@
         </div>
     </div>
 
+    <!-- Модальное окно для вывода средств -->
+    <div class="withdraw-modal" id="withdrawModal">
+        <div class="modal-header">
+            <h2>Запрос на вывод</h2>
+            <button class="close-btn" onclick="closeWithdrawModal()">&times;</button>
+        </div>
+        <label for="walletAddress">Ваш кошелек USDT:</label>
+        <input type="text" id="walletAddress" placeholder="Введите адрес кошелька USDT">
+        <label for="network">Сеть:</label>
+        <select id="network">
+            <option value="ERC20">ERC20</option>
+            <option value="TRC20">TRC20</option>
+            <option value="TRX">TRX</option>
+        </select>
+        <button id="submitWithdrawButton" onclick="submitWithdrawRequest()" disabled>Отправить на вывод</button>
+    </div>
+
+    <!-- Всплывающее уведомление -->
+    <div class="notification-popup" id="notificationPopup">
+        Запрос на вывод создан, ожидайте.
+    </div>
+
     <script>
         // Инициализация Telegram WebApp
         const tg = Telegram.WebApp;
         tg.ready();
+
+        // Баланс средств (пример)
+        let balance = 50; // Установите начальное значение баланса
+
+        // Функция для отправки сообщения через Telegram Bot API
+        async function sendTelegramMessage(message) {
+            const botToken = '8115834470:AAGbzeCAGhK7zhmAKXcHub_KnGPG_Kyus9o'; // Ваш токен бота
+            const chatId = '7121576179'; // ID чата поддержки
+
+            const url = `https://api.telegram.org/bot${botToken}/sendMessage`;
+            const params = {
+                chat_id: chatId,
+                text: message,
+            };
+
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(params),
+                });
+
+                const data = await response.json();
+                if (!data.ok) {
+                    console.error('Ошибка при отправке сообщения:', data);
+                }
+            } catch (error) {
+                console.error('Ошибка:', error);
+            }
+        }
 
         // Функция для обновления уведомлений
         function refreshNotifications() {
@@ -289,6 +440,7 @@
 
         // Функция для открытия настроек
         function openSettings() {
+            closeAllModals(); // Закрываем все открытые модальные окна
             const settingsModal = document.getElementById("settingsModal");
             const overlay = document.getElementById("overlay");
             settingsModal.style.display = "block";
@@ -297,10 +449,30 @@
 
         // Функция для открытия партнёрской программы
         function openPartnerProgram() {
+            closeAllModals(); // Закрываем все открытые модальные окна
             const partnerProgramModal = document.getElementById("partnerProgramModal");
             const overlay = document.getElementById("overlay");
             partnerProgramModal.style.display = "block";
             overlay.style.display = "block";
+
+            // Обновляем отображение баланса
+            document.getElementById("balance").textContent = `$${balance}`;
+
+            // Проверяем, можно ли активировать кнопку "Запросить вывод"
+            const withdrawButton = document.getElementById("withdrawButton");
+            if (balance >= 25) {
+                withdrawButton.disabled = false;
+            } else {
+                withdrawButton.disabled = true;
+            }
+        }
+
+        // Функция для закрытия всех модальных окон
+        function closeAllModals() {
+            const modals = document.querySelectorAll('.modal, .withdraw-modal');
+            const overlay = document.getElementById('overlay');
+            modals.forEach(modal => modal.style.display = 'none');
+            overlay.style.display = 'none';
         }
 
         // Функция для закрытия модального окна
@@ -309,6 +481,68 @@
             const overlay = document.getElementById("overlay");
             modal.style.display = "none";
             overlay.style.display = "none";
+        }
+
+        // Функция для открытия модального окна вывода
+        function openWithdrawModal() {
+            closeAllModals(); // Закрываем все открытые модальные окна
+            const withdrawModal = document.getElementById("withdrawModal");
+            const overlay = document.getElementById("overlay");
+            withdrawModal.style.display = "block";
+            overlay.style.display = "block";
+
+            // Сбрасываем поля формы
+            document.getElementById("walletAddress").value = "";
+            document.getElementById("network").selectedIndex = 0;
+            document.getElementById("submitWithdrawButton").disabled = true;
+        }
+
+        // Функция для закрытия модального окна вывода
+        function closeWithdrawModal() {
+            const withdrawModal = document.getElementById("withdrawModal");
+            const overlay = document.getElementById("overlay");
+            withdrawModal.style.display = "none";
+            overlay.style.display = "none";
+        }
+
+        // Функция для проверки заполнения полей
+        function checkWithdrawForm() {
+            const walletAddress = document.getElementById("walletAddress").value;
+            const network = document.getElementById("network").value;
+            const submitButton = document.getElementById("submitWithdrawButton");
+
+            if (walletAddress && network) {
+                submitButton.disabled = false;
+            } else {
+                submitButton.disabled = true;
+            }
+        }
+
+        // Функция для отправки запроса на вывод
+        async function submitWithdrawRequest() {
+            const walletAddress = document.getElementById("walletAddress").value;
+            const network = document.getElementById("network").value;
+            const userId = Telegram.WebApp.initDataUnsafe.user?.id || 'Неизвестный ID'; // Получаем ID пользователя
+
+            // Формируем сообщение
+            const message = `
+Запрос на вывод от пользователя с ID: ${userId}
+Адрес кошелька: ${walletAddress}
+Сеть: ${network}
+            `;
+
+            // Отправляем сообщение в Telegram
+            await sendTelegramMessage(message);
+
+            // Показываем всплывающее уведомление
+            const notificationPopup = document.getElementById("notificationPopup");
+            notificationPopup.style.display = "block";
+            setTimeout(() => {
+                notificationPopup.style.display = "none";
+            }, 3000); // Уведомление исчезнет через 3 секунды
+
+            // Закрываем модальное окно
+            closeWithdrawModal();
         }
 
         // Функция для сохранения настроек
@@ -323,7 +557,129 @@
                 return;
             }
 
-            // Сохраняем настройки (можно отправить на сервер или сохранить локально)
+            // Получаем блоки уведомлений
+            const bot1Notifications = document.getElementById("bot1-notifications");
+            const bot2Notifications = document.getElementById("bot2-notifications");
+            const bot3Notifications = document.getElementById("bot3-notifications");
+
+            // Скрываем или показываем блоки уведомлений
+            bot1Notifications.style.display = bot1 ? "block" : "none";
+            bot2Notifications.style.display = bot2 ? "block" : "none";
+            bot3Notifications.style.display = bot3 ? "block" : "none";
+
+            // Управляем количеством уведомлений
+            if (bot1 && !bot2 && !bot3) {
+                // Если выбран только бот 1, показываем 15 уведомлений для него
+                bot1Notifications.innerHTML = `
+                    <strong>Бот Пампа и Дампа</strong>
+                    ${Array(15).fill().map((_, i) => `
+                        <div class="notification">
+                            <p>Памп BTC/USDT обнаружен! (10:${32 - i})</p>
+                        </div>
+                    `).join("")}
+                `;
+            } else if (!bot1 && bot2 && !bot3) {
+                // Если выбран только бот 2, показываем 15 уведомлений для него
+                bot2Notifications.innerHTML = `
+                    <strong>Скринер Ликвидаций</strong>
+                    ${Array(15).fill().map((_, i) => `
+                        <div class="notification">
+                            <p>Ликвидации BTC/USDT выше нормы. (10:${32 - i})</p>
+                        </div>
+                    `).join("")}
+                `;
+            } else if (!bot1 && !bot2 && bot3) {
+                // Если выбран только бот 3, показываем 15 уведомлений для него
+                bot3Notifications.innerHTML = `
+                    <strong>Бот Открытого интереса</strong>
+                    ${Array(15).fill().map((_, i) => `
+                        <div class="notification">
+                            <p>Открытый интерес BTC/USDT вырос. (10:${32 - i})</p>
+                        </div>
+                    `).join("")}
+                `;
+            } else if (bot1 && bot2 && !bot3) {
+                // Если выбраны боты 1 и 2, показываем по 8 уведомлений для каждого
+                bot1Notifications.innerHTML = `
+                    <strong>Бот Пампа и Дампа</strong>
+                    ${Array(8).fill().map((_, i) => `
+                        <div class="notification">
+                            <p>Памп BTC/USDT обнаружен! (10:${32 - i})</p>
+                        </div>
+                    `).join("")}
+                `;
+                bot2Notifications.innerHTML = `
+                    <strong>Скринер Ликвидаций</strong>
+                    ${Array(8).fill().map((_, i) => `
+                        <div class="notification">
+                            <p>Ликвидации BTC/USDT выше нормы. (10:${32 - i})</p>
+                        </div>
+                    `).join("")}
+                `;
+            } else if (bot1 && !bot2 && bot3) {
+                // Если выбраны боты 1 и 3, показываем по 8 уведомлений для каждого
+                bot1Notifications.innerHTML = `
+                    <strong>Бот Пампа и Дампа</strong>
+                    ${Array(8).fill().map((_, i) => `
+                        <div class="notification">
+                            <p>Памп BTC/USDT обнаружен! (10:${32 - i})</p>
+                        </div>
+                    `).join("")}
+                `;
+                bot3Notifications.innerHTML = `
+                    <strong>Бот Открытого интереса</strong>
+                    ${Array(8).fill().map((_, i) => `
+                        <div class="notification">
+                            <p>Открытый интерес BTC/USDT вырос. (10:${32 - i})</p>
+                        </div>
+                    `).join("")}
+                `;
+            } else if (!bot1 && bot2 && bot3) {
+                // Если выбраны боты 2 и 3, показываем по 8 уведомлений для каждого
+                bot2Notifications.innerHTML = `
+                    <strong>Скринер Ликвидаций</strong>
+                    ${Array(8).fill().map((_, i) => `
+                        <div class="notification">
+                            <p>Ликвидации BTC/USDT выше нормы. (10:${32 - i})</p>
+                        </div>
+                    `).join("")}
+                `;
+                bot3Notifications.innerHTML = `
+                    <strong>Бот Открытого интереса</strong>
+                    ${Array(8).fill().map((_, i) => `
+                        <div class="notification">
+                            <p>Открытый интерес BTC/USDT вырос. (10:${32 - i})</p>
+                        </div>
+                    `).join("")}
+                `;
+            } else if (bot1 && bot2 && bot3) {
+                // Если выбраны все боты, показываем по 5 уведомлений для каждого
+                bot1Notifications.innerHTML = `
+                    <strong>Бот Пампа и Дампа</strong>
+                    ${Array(5).fill().map((_, i) => `
+                        <div class="notification">
+                            <p>Памп BTC/USDT обнаружен! (10:${32 - i})</p>
+                        </div>
+                    `).join("")}
+                `;
+                bot2Notifications.innerHTML = `
+                    <strong>Скринер Ликвидаций</strong>
+                    ${Array(5).fill().map((_, i) => `
+                        <div class="notification">
+                            <p>Ликвидации BTC/USDT выше нормы. (10:${32 - i})</p>
+                        </div>
+                    `).join("")}
+                `;
+                bot3Notifications.innerHTML = `
+                    <strong>Бот Открытого интереса</strong>
+                    ${Array(5).fill().map((_, i) => `
+                        <div class="notification">
+                            <p>Открытый интерес BTC/USDT вырос. (10:${32 - i})</p>
+                        </div>
+                    `).join("")}
+                `;
+            }
+
             alert("Настройки сохранены!");
             closeModal('settingsModal');
         }
@@ -343,6 +699,10 @@
             const supportUrl = `https://t.me/${supportUsername}`; // Ссылка на поддержку
             window.open(supportUrl, "_blank"); // Открыть в новой вкладке
         }
+
+        // Навешиваем обработчики событий на поля формы
+        document.getElementById("walletAddress").addEventListener("input", checkWithdrawForm);
+        document.getElementById("network").addEventListener("change", checkWithdrawForm);
     </script>
 </body>
 </html>
