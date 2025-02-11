@@ -265,6 +265,34 @@
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             z-index: 1001;
         }
+
+        /* Settings */
+        .settings-name{
+            margin-right: 10px;
+        }
+        .settings-select{
+            width: 80px;
+            height: 30px;
+            margin-right: 5px;
+        }
+        .settings-percent{
+            width: 35px;
+            height: 24px;
+            margin-right: 5px;
+        }
+        .settings-box{
+            display: flex; 
+            vertical-align: middle;
+            align-items: center;
+        }
+        .liquidation{
+            width: 70px;
+        }
+    .button-container {
+        display: flex;
+        justify-content: center;
+        margin-top: 15px; 
+    }
     </style>
 </head>
 <body>
@@ -318,7 +346,7 @@
         <button onclick="contactSupport()" title="Написать в поддержку"><i class="fas fa-headset"></i></button>
     </div>
     <div class="footer">
-        &copy; 2023 SenseiTradeBot. Все права защищены.
+        &copy; 2025 SenseiTradeBot. Все права защищены.
     </div>
 
     <!-- Оверлей для затемнения фона -->
@@ -334,13 +362,67 @@
             <label>
                 <input type="checkbox" id="bot1" checked> Бот Пампа и Дампа
             </label>
+           <div class="settings-box">
+                <p class="settings-name" style="margin-right: 15px;">Лонг: </p>
+                <input type="number" id="longperiod" class="settings-percent" min="1" max="30">
+                <!-- <select class="settings-select" id="longperiod">
+                    <option>Hello</option>
+                </select> -->
+                <p style="margin-right: 5px;">м</p>
+                <input type="number" id="longpercent" class="settings-percent" min="0">
+                <p>%</p>
+            </div>
+            <div class="settings-box">
+                <p class="settings-name">Шорт: </p>
+                <input type="number" id="shortperiod" class="settings-percent" min="1" max="30">
+                <!-- <select class="settings-select" id="longperiod">
+                    <option>Hello</option>
+                </select> -->
+                <p style="margin-right: 5px;">м</p>
+                <input type="number" id="shortpercent" class="settings-percent" min="0">
+                <p>%</p>
+            </div>
             <label>
                 <input type="checkbox" id="bot2" checked> Скринер Ликвидаций
             </label>
+            <div class="settings-box">
+                <p class="settings-name" style="margin-right: 15px;">Лонг ликвидации: </p>
+                <input type="number" id="longliquidation" class="settings-percent liquidation" min="10000" default="10000">
+                <p>$</p>
+            </div>
+            <div class="settings-box">
+                <p class="settings-name">Шорт ликвидации: </p>
+                <input type="number" id="shortliquidation" class="settings-percent liquidation" min="10000" default="10000">
+                <p>$</p>
+            </div>
             <label>
                 <input type="checkbox" id="bot3" checked> Бот Открытого интереса
             </label>
-            <button onclick="saveSettings()">Сохранить</button>
+            <div class="settings-box">
+                <p class="settings-name" style="margin-right: 40px;">Рост: </p>
+                <select class="settings-select" id="oilongperiod">
+                    <option value="5m">5m</option>
+                    <option value="15m">15m</option>
+                    <option value="30m">30m</option>
+                    <option value="1H">1H</option>
+                    <option value="4H">4H</option>
+                    <option value="1D">1D</option>
+                </select>
+                <input type="number" id="oilongpercent" class="settings-percent" min="0">
+                <p>%</p>
+            </div>
+            <div class="settings-box">
+                <p class="settings-name">Рост Объема: </p>
+                <p style="margin-right: 5px;">в</p>
+                <input type="number" id="oivolfilter" class="settings-percent" min="0"  style="margin-right: 5px;">
+                <p  style="margin-right: 5px;">раз(-а)</p>
+                <input type="number" id="oivolsma" class="settings-percent" min="0"  style="margin-right: 5px;">
+                <p>МА</p>
+            </div>
+            <button onclick="saveSettings()" style="margin-top: 20px;">Сохранить</button>
+            <!-- <div class="button-container">
+                <button onclick="saveSettings()">Сохранить</button>
+            </div> -->
         </div>
     </div>
 
@@ -394,14 +476,39 @@
     <div class="notification-popup" id="notificationPopup">
         Запрос на вывод создан, ожидайте.
     </div>
-
+    <script src="functions.js"></script>
     <script>
         // Инициализация Telegram WebApp
         const tg = Telegram.WebApp;
         tg.ready();
-
+        const userId = tg.initDataUnsafe.user.id;
+        // const startParam = tg.initDataUnsafe.start_param; 
+        
+        setSettings();
+        saveSettings("update");
         // Баланс средств (пример)
-        let balance = 50; // Установите начальное значение баланса
+        var balance =  0; // Установите начальное значение баланса
+
+
+
+        async function setUserData(){
+            var data = await getUserData(userId);
+            
+            document.getElementById("referralLink").innerHTML = `https://t.me/CryptoAccessKey_bot?start=${data.referral_code}`;
+            document.getElementById("invitedUsers").innerHTML = data.users_invited;
+            document.getElementById("totalBonuses").innerHTML = `$${data.lifetime_balance}`;
+            document.getElementById("balance").innerHTML = data.balance;
+            balance = data.balance;
+            
+
+        }
+
+        setUserData();
+
+        
+
+
+
 
         // Функция для отправки сообщения через Telegram Bot API
         async function sendTelegramMessage(message) {
@@ -432,9 +539,27 @@
             }
         }
 
+
+        async function setSettings() {
+            const settings = await getSettings(userId);
+            console.log(settings);
+            document.getElementById("longperiod").value = settings.pump.growth_period;
+            document.getElementById("longpercent").value = settings.pump.growth_percent;
+            document.getElementById("shortperiod").value = settings.pump.down_period;
+            document.getElementById("shortpercent").value = settings.pump.down_percent;
+            // document.getElementById("bot2").checked = settings.bot2;
+            document.getElementById("longliquidation").value = settings.liquidation.growth_period;
+            document.getElementById("shortliquidation").value = settings.liquidation.down_period;
+            // document.getElementById("bot3").checked = settings.bot3;
+            document.getElementById("oilongperiod").value = settings.open_interest.growth_period;
+            document.getElementById("oilongpercent").value = settings.open_interest.growth_percent;
+            document.getElementById("oivolfilter").value = settings.open_interest.volfilter;
+            document.getElementById("oivolsma").value = settings.open_interest.volsma;
+        }
         // Функция для обновления уведомлений
         function refreshNotifications() {
             alert("Загрузка новых уведомлений...");
+            saveSettings("update");
             // Здесь можно добавить запрос к API для получения новых данных
         }
 
@@ -546,10 +671,44 @@
         }
 
         // Функция для сохранения настроек
-        function saveSettings() {
+        async function saveSettings(mode='default') {
             const bot1 = document.getElementById("bot1").checked;
             const bot2 = document.getElementById("bot2").checked;
             const bot3 = document.getElementById("bot3").checked;
+
+            const settings = {
+                pump: {
+                    growth_period: document.getElementById("longperiod").value.trim() || "1",
+                    growth_percent: Math.max(1, parseFloat(document.getElementById("longpercent").value) || 1),
+                    down_period: document.getElementById("shortperiod").value.trim() || "1",
+                    down_percent: Math.max(1, parseFloat(document.getElementById("shortpercent").value) || 1)
+            },
+            open_interest: {
+                growth_period: document.getElementById("oilongperiod").value || "20m",
+                growth_percent: Math.max(0, parseFloat(document.getElementById("oilongpercent").value) || 0),
+                // down_period: document.getElementById("oishortperiod").value || "20m",
+                // down_percent: Math.max(0, parseFloat(document.getElementById("oishortgpercent").value) || 0),
+                volsma: Math.max(1, parseInt(document.getElementById("oivolsma")?.value) || 5),  
+                volfilter: Math.max(1, parseInt(document.getElementById("oivolfilter")?.value) || 2)  
+            },
+            liquidation: {
+                growth_period: Math.max(10000, parseInt(document.getElementById("longliquidation").value) || 10000),
+                down_period: Math.max(10000, parseInt(document.getElementById("shortliquidation").value) || 10000)
+            }
+            };
+
+            // console.log("Generated settings:", settings);
+            if (mode=='default'){
+            await changeSettings(userId, settings);
+            };
+
+            var notifications = await getSettings(userId);
+
+            var pump_notifications = JSON.parse(notifications.pump.history);
+            var oi_notifications = JSON.parse(notifications.open_interest.history);
+            var liquidation_notifications = JSON.parse(notifications.liquidation.history);
+
+
 
             // Проверка, что хотя бы один бот включен
             if (!bot1 && !bot2 && !bot3) {
@@ -567,121 +726,53 @@
             bot2Notifications.style.display = bot2 ? "block" : "none";
             bot3Notifications.style.display = bot3 ? "block" : "none";
 
-            // Управляем количеством уведомлений
-            if (bot1 && !bot2 && !bot3) {
-                // Если выбран только бот 1, показываем 15 уведомлений для него
-                bot1Notifications.innerHTML = `
-                    <strong>Бот Пампа и Дампа</strong>
-                    ${Array(15).fill().map((_, i) => `
-                        <div class="notification">
-                            <p>Памп BTC/USDT обнаружен! (10:${32 - i})</p>
-                        </div>
-                    `).join("")}
-                `;
-            } else if (!bot1 && bot2 && !bot3) {
-                // Если выбран только бот 2, показываем 15 уведомлений для него
-                bot2Notifications.innerHTML = `
-                    <strong>Скринер Ликвидаций</strong>
-                    ${Array(15).fill().map((_, i) => `
-                        <div class="notification">
-                            <p>Ликвидации BTC/USDT выше нормы. (10:${32 - i})</p>
-                        </div>
-                    `).join("")}
-                `;
-            } else if (!bot1 && !bot2 && bot3) {
-                // Если выбран только бот 3, показываем 15 уведомлений для него
-                bot3Notifications.innerHTML = `
-                    <strong>Бот Открытого интереса</strong>
-                    ${Array(15).fill().map((_, i) => `
-                        <div class="notification">
-                            <p>Открытый интерес BTC/USDT вырос. (10:${32 - i})</p>
-                        </div>
-                    `).join("")}
-                `;
-            } else if (bot1 && bot2 && !bot3) {
-                // Если выбраны боты 1 и 2, показываем по 8 уведомлений для каждого
-                bot1Notifications.innerHTML = `
-                    <strong>Бот Пампа и Дампа</strong>
-                    ${Array(8).fill().map((_, i) => `
-                        <div class="notification">
-                            <p>Памп BTC/USDT обнаружен! (10:${32 - i})</p>
-                        </div>
-                    `).join("")}
-                `;
-                bot2Notifications.innerHTML = `
-                    <strong>Скринер Ликвидаций</strong>
-                    ${Array(8).fill().map((_, i) => `
-                        <div class="notification">
-                            <p>Ликвидации BTC/USDT выше нормы. (10:${32 - i})</p>
-                        </div>
-                    `).join("")}
-                `;
-            } else if (bot1 && !bot2 && bot3) {
-                // Если выбраны боты 1 и 3, показываем по 8 уведомлений для каждого
-                bot1Notifications.innerHTML = `
-                    <strong>Бот Пампа и Дампа</strong>
-                    ${Array(8).fill().map((_, i) => `
-                        <div class="notification">
-                            <p>Памп BTC/USDT обнаружен! (10:${32 - i})</p>
-                        </div>
-                    `).join("")}
-                `;
-                bot3Notifications.innerHTML = `
-                    <strong>Бот Открытого интереса</strong>
-                    ${Array(8).fill().map((_, i) => `
-                        <div class="notification">
-                            <p>Открытый интерес BTC/USDT вырос. (10:${32 - i})</p>
-                        </div>
-                    `).join("")}
-                `;
-            } else if (!bot1 && bot2 && bot3) {
-                // Если выбраны боты 2 и 3, показываем по 8 уведомлений для каждого
-                bot2Notifications.innerHTML = `
-                    <strong>Скринер Ликвидаций</strong>
-                    ${Array(8).fill().map((_, i) => `
-                        <div class="notification">
-                            <p>Ликвидации BTC/USDT выше нормы. (10:${32 - i})</p>
-                        </div>
-                    `).join("")}
-                `;
-                bot3Notifications.innerHTML = `
-                    <strong>Бот Открытого интереса</strong>
-                    ${Array(8).fill().map((_, i) => `
-                        <div class="notification">
-                            <p>Открытый интерес BTC/USDT вырос. (10:${32 - i})</p>
-                        </div>
-                    `).join("")}
-                `;
-            } else if (bot1 && bot2 && bot3) {
-                // Если выбраны все боты, показываем по 5 уведомлений для каждого
-                bot1Notifications.innerHTML = `
-                    <strong>Бот Пампа и Дампа</strong>
-                    ${Array(5).fill().map((_, i) => `
-                        <div class="notification">
-                            <p>Памп BTC/USDT обнаружен! (10:${32 - i})</p>
-                        </div>
-                    `).join("")}
-                `;
-                bot2Notifications.innerHTML = `
-                    <strong>Скринер Ликвидаций</strong>
-                    ${Array(5).fill().map((_, i) => `
-                        <div class="notification">
-                            <p>Ликвидации BTC/USDT выше нормы. (10:${32 - i})</p>
-                        </div>
-                    `).join("")}
-                `;
-                bot3Notifications.innerHTML = `
-                    <strong>Бот Открытого интереса</strong>
-                    ${Array(5).fill().map((_, i) => `
-                        <div class="notification">
-                            <p>Открытый интерес BTC/USDT вырос. (10:${32 - i})</p>
-                        </div>
-                    `).join("")}
-                `;
-            }
 
-            alert("Настройки сохранены!");
-            closeModal('settingsModal');
+            function generateNotifications(title, messages, limit) {
+            return `
+                <strong>${title}</strong>
+                ${messages.slice(0, limit).map(msg => {
+                    let date = new Date(msg.ts * 1000); // Convert timestamp to milliseconds
+                    let hours = date.getHours().toString().padStart(2, '0'); // Ensure two-digit format
+                    let minutes = date.getMinutes().toString().padStart(2, '0'); // Ensure two-digit format
+                    let timeString = `${hours}:${minutes}`; // Format as hh:mm
+
+                    return `
+                        <div class="notification">
+                            <p>${msg.text.replace(/\\n/g, "<br>").replace(/\n/g, "<br>")} (${timeString})</p>
+                        </div>
+                    `;
+                }).join("")}
+            `;
+        }
+
+
+
+
+        if (bot1 && !bot2 && !bot3) {
+            bot1Notifications.innerHTML = generateNotifications("Бот Пампа и Дампа", pump_notifications, 15);
+        } else if (!bot1 && bot2 && !bot3) {
+            bot2Notifications.innerHTML = generateNotifications("Скринер Ликвидаций", liquidation_notifications, 15);
+        } else if (!bot1 && !bot2 && bot3) {
+            bot3Notifications.innerHTML = generateNotifications("Бот Открытого интереса", oi_notifications, 15);
+        } else if (bot1 && bot2 && !bot3) {
+            bot1Notifications.innerHTML = generateNotifications("Бот Пампа и Дампа", pump_notifications, 8);
+            bot2Notifications.innerHTML = generateNotifications("Скринер Ликвидаций", liquidation_notifications, 8);
+        } else if (bot1 && !bot2 && bot3) {
+            bot1Notifications.innerHTML = generateNotifications("Бот Пампа и Дампа", pump_notifications, 8);
+            bot3Notifications.innerHTML = generateNotifications("Бот Открытого интереса", oi_notifications, 8);
+        } else if (!bot1 && bot2 && bot3) {
+            bot2Notifications.innerHTML = generateNotifications("Скринер Ликвидаций", liquidation_notifications, 8);
+            bot3Notifications.innerHTML = generateNotifications("Бот Открытого интереса", oi_notifications, 8);
+        } else if (bot1 && bot2 && bot3) {
+            bot1Notifications.innerHTML = generateNotifications("Бот Пампа и Дампа", pump_notifications, 5);
+            bot2Notifications.innerHTML = generateNotifications("Скринер Ликвидаций", liquidation_notifications, 5);
+            bot3Notifications.innerHTML = generateNotifications("Бот Открытого интереса", oi_notifications, 5);
+        }
+
+            if (mode=='default'){
+                alert("Настройки сохранены!");
+                closeModal('settingsModal');
+            };
         }
 
         // Функция для отправки отзыва
@@ -700,9 +791,14 @@
             window.open(supportUrl, "_blank"); // Открыть в новой вкладке
         }
 
+        setInterval(() => {
+            saveSettings('update').catch(console.error); // Handle errors properly
+}, 10000);
+
         // Навешиваем обработчики событий на поля формы
         document.getElementById("walletAddress").addEventListener("input", checkWithdrawForm);
         document.getElementById("network").addEventListener("change", checkWithdrawForm);
     </script>
 </body>
 </html>
+
