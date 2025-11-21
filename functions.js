@@ -1,12 +1,12 @@
-
 const BASE_URL = 'https://senseitradebot.ru/';
 
 async function getSettings(userId) {
     try {
-        const response = await fetch(`${BASE_URL}getsettings`, {
+        // userId теперь в URL как query-параметр
+        const response = await fetch(`${BASE_URL}getsettings?userId=${userId}`, {
             method: 'GET',
             headers: {
-                'USER': userId,
+                // Убираем 'USER': userId, чтобы избежать Preflight
                 'Content-Type': 'application/json'
             }
         });
@@ -14,7 +14,6 @@ async function getSettings(userId) {
         if (!response.ok) {
             throw new Error(`HTTP error! Status: ${response.status}`);
         }
-
 
         const contentType = response.headers.get("content-type");
         if (contentType && contentType.includes("application/json")) {
@@ -25,18 +24,22 @@ async function getSettings(userId) {
         }
     } catch (error) {
         console.error('Request failed:', error);
-        return null;
+        // Возвращаем пустые данные, чтобы не ломать интерфейс
+        return { 
+            pump: { history: "[]" }, 
+            open_interest: { history: "[]" }, 
+            liquidation: { history: "[]" }
+        };
     }
 }
 
-
-
 async function changeSettings(userId, newSettings) {
     try {
-        const response = await fetch(`${BASE_URL}changesettings`, {
+        // userId теперь в URL как query-параметр
+        const response = await fetch(`${BASE_URL}changesettings?userId=${userId}`, {
             method: 'POST',
             headers: {
-                'USER': userId,
+                // Убираем 'USER': userId, чтобы избежать Preflight
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify(newSettings)
@@ -56,13 +59,13 @@ async function changeSettings(userId, newSettings) {
     }
 }
 
-
 async function getUserData(userId) {
     try {
-        const response = await fetch(`${BASE_URL}getuserdata`, {
+        // userId теперь в URL как query-параметр
+        const response = await fetch(`${BASE_URL}getuserdata?userId=${userId}`, {
             method: 'GET',
             headers: {
-                'USER': userId,
+                // Убираем 'USER': userId, чтобы избежать Preflight
                 'Content-Type': 'application/json'
             }
         });
@@ -80,4 +83,3 @@ async function getUserData(userId) {
         return null;
     }
 }
-
