@@ -13,22 +13,22 @@
 
     <style>
         :root {
-            --bg-dark: #0f172a;
+            --bg-dark: #0f172a; /* Чуть светлее черного, глубокий синий */
             --bg-gradient: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
             --card-bg: rgba(30, 41, 59, 0.6);
             --accent: #00d084;
             --accent-glow: rgba(0, 208, 132, 0.2);
             --text-main: #e2e8f0;
-            --text-secondary: #94a3b8;
+            --text-secondary: #94a3b8; /* Мягкий серый для обычного текста */
             --border: rgba(255, 255, 255, 0.06);
             --glass: rgba(15, 23, 36, 0.85);
             --nav-height: 70px;
             
-            /* ЦВЕТА ТЕКСТА */
-            --color-ticker: #fbbf24;
-            --color-exchange: #60a5fa;
-            --color-value: #ffffff;
-            --color-positive: #34d399;
+            /* НОВАЯ ПАЛИТРА ДЛЯ ТЕКСТА */
+            --color-ticker: #fbbf24; /* Янтарный/Золотой */
+            --color-exchange: #60a5fa; /* Спокойный голубой */
+            --color-value: #ffffff; /* Белый для цифр */
+            --color-positive: #34d399; /* Мягкий зеленый */
         }
 
         * { 
@@ -188,11 +188,14 @@
             border: 1px solid rgba(255,255,255,0.05);
         }
 
+        /* СТИЛИ ДЛЯ ТЕКСТА УВЕДОМЛЕНИЙ */
         .notif-content {
-            font-size: 14px; line-height: 1.6; color: var(--text-secondary); font-weight: 400;
+            font-size: 14px; 
+            line-height: 1.6; 
+            color: var(--text-secondary); 
+            font-weight: 400;
         }
 
-        /* Подсветка */
         .hl-ticker { color: var(--color-ticker); font-weight: 700; letter-spacing: 0.3px; }
         .hl-exchange { color: var(--color-exchange); font-weight: 600; }
         .hl-value { color: var(--color-value); font-weight: 600; }
@@ -204,7 +207,7 @@
             font-size: 14px; border: 1px dashed var(--border);
         }
 
-        /* === NAVIGATION === */
+        /* === BOTTOM NAVIGATION === */
         .buttons {
             position: fixed; bottom: 0; left: 0; width: 100%;
             height: calc(var(--nav-height) + env(safe-area-inset-bottom));
@@ -697,6 +700,7 @@
                         
                         // === ЛОГИКА АНИМАЦИИ И ЗНАЧКА NEW ===
                         const now = Math.floor(Date.now() / 1000);
+                        // Если сообщению меньше 15 секунд
                         const isNew = (now - msg.ts) < 15; 
                         
                         const animClass = isNew ? 'new-anim' : '';
