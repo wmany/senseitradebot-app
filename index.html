@@ -1,405 +1,419 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
-    <title>SenseiTradeBot</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>SenseiTradeBot Dashboard</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <style>
-        /* Основные стили */
+        :root {
+            --bg-dark: #0f172a;
+            --bg-gradient: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
+            --card-bg: rgba(30, 41, 59, 0.6);
+            --accent: #00d084;
+            --accent-glow: rgba(0, 208, 132, 0.2);
+            --text-main: #e2e8f0;
+            --text-secondary: #94a3b8;
+            --border: rgba(255, 255, 255, 0.06);
+            --glass: rgba(15, 23, 36, 0.85);
+            --nav-height: 70px;
+            
+            /* ЦВЕТА ТЕКСТА */
+            --color-ticker: #fbbf24;
+            --color-exchange: #60a5fa;
+            --color-value: #ffffff;
+            --color-positive: #34d399;
+        }
+
+        * { 
+            box-sizing: border-box; 
+            -webkit-tap-highlight-color: transparent; 
+            outline: none; 
+        }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-image: url('ваше-изображение.jpg'); /* Путь к изображению */
-            background-size: cover; /* Растягиваем изображение на весь экран */
-            background-position: center; /* Центрируем изображение */
-            background-repeat: no-repeat; /* Запрещаем повторение изображения */
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-dark);
             margin: 0;
             padding: 0;
-            color: #FFFFFF;
+            color: var(--text-main);
             display: flex;
             flex-direction: column;
-            height: 100vh;
+            height: 100dvh; 
+            overflow: hidden; 
+            user-select: none;
         }
-        h1 {
-            color: #FFFFFF;
-            text-align: center;
-            font-size: 1.5rem;
-            margin: 10px 0;
-            padding: 10px;
-            background: rgba(23, 33, 43, 0.8); /* Полупрозрачный фон для заголовка */
-            border-radius: 8px;
-        }
-        .container {
-            flex: 1;
-            overflow-y: auto;
-            padding: 10px;
-            background: rgba(47, 61, 74, 0.8); /* Полупрозрачный фон для контейнера */
-            border-radius: 12px;
-            margin: 10px;
-        }
-        .notification {
-            padding: 10px;
-            margin: 10px 0;
-            background: rgba(43, 82, 120, 0.9); /* Полупрозрачный фон для уведомлений */
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-        .notification:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-        .notification strong {
-            color: #FFFFFF;
-            font-size: 1rem;
-        }
-        .notification p {
-            margin: 5px 0 0;
-            color: #8294A1;
-            font-size: 0.9rem;
-        }
-        .buttons {
-            display: flex;
-            justify-content: space-around;
-            background: rgba(47, 61, 74, 0.9); /* Полупрозрачный фон для кнопок */
-            padding: 10px;
-            border-top: 1px solid #444;
+
+        /* === HEADER === */
+        .app-header {
+            padding: 16px 20px;
+            padding-top: calc(16px + env(safe-area-inset-top));
+            background: var(--glass);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
             position: sticky;
-            bottom: 0;
-            z-index: 100;
-        }
-        .buttons button {
-            background: #2B5278;
-            color: white;
-            border: none;
-            padding: 10px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 1rem;
-            transition: background 0.3s, transform 0.2s;
-            flex: 1;
+            top: 0;
+            z-index: 10;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: 0 5px;
-        }
-        .buttons button:hover {
-            background: #3B6388;
-            transform: translateY(-2px);
-        }
-        .buttons button:active {
-            transform: translateY(0);
-        }
-        .buttons button i {
-            font-size: 1.2rem;
-        }
-        .footer {
-            text-align: center;
-            padding: 10px;
-            color: #8294A1;
-            font-size: 0.8rem;
-            background: rgba(47, 61, 74, 0.9); /* Полупрозрачный фон для футера */
-            border-top: 1px solid #444;
-        }
-        .modal {
-            display: none; /* Скрываем подменю по умолчанию */
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: #2F3D4A;
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            z-index: 1000;
-            width: 90%;
-            max-width: 400px;
-        }
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-        .modal-header h2 {
-            color: #FFFFFF;
-            font-size: 1.5rem;
-            margin: 0;
-        }
-        .modal-header .close-btn {
-            background: none;
-            border: none;
-            color: #FFFFFF;
-            font-size: 1rem; /* Уменьшаем размер кнопки */
-            cursor: pointer;
-            padding: 5px;
-            margin: -10px -10px 0 0; /* Сдвигаем кнопку в правый верхний угол */
-        }
-        .modal-header .close-btn:hover {
-            color: #FF6F61;
-        }
-        .settings label {
-            display: block;
-            margin: 10px 0;
-            font-size: 1rem;
-            color: #FFFFFF;
-        }
-        .settings input[type="checkbox"] {
-            margin-right: 10px;
-        }
-        .partner-program p {
-            color: #8294A1;
-            margin-bottom: 10px;
-        }
-        .partner-program .referral-link {
-            background: #2B5278;
-            padding: 10px;
-            border-radius: 8px;
-            color: #FFFFFF;
-            word-break: break-all;
-            margin-bottom: 15px;
-        }
-        .partner-program .stats {
-            background: #2B5278;
-            padding: 10px;
-            border-radius: 8px;
-            color: #FFFFFF;
-        }
-        .partner-program .bonus-info {
-            margin-top: 15px;
-            color: #8294A1;
-        }
-        .partner-program .withdraw-button {
-            margin-top: 15px;
-            text-align: center;
-        }
-        .partner-program .withdraw-button button {
-            background: #2B5278;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 1rem;
-            transition: background 0.3s, transform 0.2s;
-        }
-        .partner-program .withdraw-button button:hover {
-            background: #3B6388;
-            transform: translateY(-2px);
-        }
-        .partner-program .withdraw-button button:active {
-            transform: translateY(0);
-        }
-        .withdraw-modal {
-            display: none; /* Скрываем модальное окно вывода по умолчанию */
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: #2F3D4A;
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            z-index: 1000;
-            width: 90%;
-            max-width: 400px;
-        }
-        .withdraw-modal label {
-            display: block;
-            margin: 10px 0;
-            font-size: 1rem;
-            color: #FFFFFF;
-        }
-        .withdraw-modal input[type="text"],
-        .withdraw-modal select {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 15px;
-            border-radius: 8px;
-            border: 1px solid #444;
-            background: #1E2A36;
-            color: #FFFFFF;
-        }
-        .withdraw-modal button {
-            background: #2B5278;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 1rem;
-            transition: background 0.3s, transform 0.2s;
-            width: 100%;
-        }
-        .withdraw-modal button:hover {
-            background: #3B6388;
-            transform: translateY(-2px);
-        }
-        .withdraw-modal button:active {
-            transform: translateY(0);
-        }
-        .withdraw-modal button:disabled {
-            background: #1E2A36;
-            cursor: not-allowed;
-        }
-        .overlay {
-            display: none; /* Скрываем оверлей по умолчанию */
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 999;
-        }
-        .notification-popup {
-            display: none; /* Скрываем всплывающее уведомление по умолчанию */
-            position: fixed;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #2B5278;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            z-index: 1001;
+            box-shadow: 0 4px 30px rgba(0,0,0,0.2);
+            flex-shrink: 0;
         }
 
-        /* Settings */
-        .settings-name{
-            margin-right: 10px;
+        .app-header h1 {
+            margin: 0;
+            font-size: 17px;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: 0.5px;
         }
-        .settings-select{
-            width: 80px;
-            height: 30px;
-            margin-right: 5px;
+
+        /* === CONTAINER === */
+        .container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+            padding-bottom: calc(var(--nav-height) + 40px);
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
         }
-        .settings-percent{
-            width: 35px;
-            height: 24px;
-            margin-right: 5px;
+        .container::-webkit-scrollbar { width: 0px; background: transparent; }
+
+        /* === NOTIFICATIONS === */
+        .bot-group {
+            margin-bottom: 24px;
         }
-        .settings-box{
-            display: flex; 
-            vertical-align: middle;
+        
+        .bot-header {
+            display: flex;
             align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+            padding-left: 4px;
         }
-        .liquidation{
-            width: 70px;
+
+        .bot-header i {
+            color: var(--accent);
+            font-size: 15px;
+            filter: drop-shadow(0 0 8px var(--accent-glow));
         }
-    .button-container {
-        display: flex;
-        justify-content: center;
-        margin-top: 15px; 
-    }
+
+        .bot-header span {
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            letter-spacing: 1px;
+        }
+
+        .notification {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-left: 3px solid var(--accent);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.1s;
+        }
+
+        .notification:active { transform: scale(0.97); background: rgba(255,255,255,0.05); }
+
+        /* === АНИМАЦИЯ ПОЯВЛЕНИЯ НОВОГО === */
+        @keyframes slideInNew {
+            0% {
+                opacity: 0;
+                transform: translateX(-20px) scale(0.95);
+                background-color: rgba(0, 208, 132, 0.3);
+            }
+            50% {
+                background-color: rgba(0, 208, 132, 0.1);
+            }
+            100% {
+                opacity: 1;
+                transform: translateX(0) scale(1);
+                background-color: var(--card-bg);
+            }
+        }
+
+        .notification.new-anim {
+            animation: slideInNew 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+        }
+
+        .notif-top {
+            display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;
+        }
+
+        .notif-icon-badge {
+            width: 26px; height: 26px; border-radius: 8px;
+            background: rgba(255,255,255,0.05);
+            display: flex; align-items: center; justify-content: center;
+            color: var(--text-secondary); font-size: 12px;
+        }
+
+        /* БЕЙДЖ NEW */
+        .new-badge {
+            display: inline-block;
+            background: var(--accent);
+            color: #0f172a;
+            font-size: 10px;
+            font-weight: 800;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-right: 8px;
+            box-shadow: 0 0 10px var(--accent-glow);
+            animation: pulseBadge 2s infinite ease-in-out;
+        }
+        @keyframes pulseBadge {
+            0% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(0.95); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        .notif-time-container { display: flex; align-items: center; }
+
+        .notif-time {
+            font-size: 11px; font-weight: 600; color: var(--text-secondary);
+            background: rgba(0,0,0,0.3); padding: 4px 8px; border-radius: 6px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .notif-content {
+            font-size: 14px; line-height: 1.6; color: var(--text-secondary); font-weight: 400;
+        }
+
+        /* Подсветка */
+        .hl-ticker { color: var(--color-ticker); font-weight: 700; letter-spacing: 0.3px; }
+        .hl-exchange { color: var(--color-exchange); font-weight: 600; }
+        .hl-value { color: var(--color-value); font-weight: 600; }
+        .hl-green { color: var(--color-positive); }
+
+        .empty-state {
+            text-align: center; padding: 30px 20px; color: var(--text-secondary);
+            background: rgba(255,255,255,0.02); border-radius: 14px;
+            font-size: 14px; border: 1px dashed var(--border);
+        }
+
+        /* === NAVIGATION === */
+        .buttons {
+            position: fixed; bottom: 0; left: 0; width: 100%;
+            height: calc(var(--nav-height) + env(safe-area-inset-bottom));
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-top: 1px solid var(--border);
+            display: flex; justify-content: space-around; align-items: flex-start;
+            padding-top: 10px;
+            z-index: 100;
+        }
+
+        .buttons button {
+            background: transparent; border: none; color: var(--text-secondary);
+            font-size: 18px; padding: 0 10px; flex: 1;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            gap: 6px; cursor: pointer; transition: 0.2s;
+            height: 50px; 
+        }
+        .buttons button:active { color: var(--accent); transform: scale(0.9); }
+        .buttons button i { font-size: 22px; transition: 0.3s; }
+        
+        /* === MODALS === */
+        .overlay {
+            position: fixed; inset: 0; background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px); z-index: 1000; display: none;
+            animation: fadeInOverlay 0.2s forwards;
+        }
+        @keyframes fadeInOverlay { from { opacity: 0; } to { opacity: 1; } }
+
+        .modal, .withdraw-modal {
+            position: fixed; top: 50%; left: 50%;
+            transform: translate(-50%, -50%) scale(0.95);
+            width: 92%; max-width: 400px; background: #1e293b;
+            border: 1px solid var(--border); border-radius: 24px; padding: 20px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
+            z-index: 1001; display: none; max-height: 85vh; overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            animation: modalIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        @keyframes modalIn { to { transform: translate(-50%, -50%) scale(1); opacity: 1; } }
+
+        .modal-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 20px; padding-bottom: 12px; border-bottom: 1px solid var(--border);
+        }
+        .modal-header h2 { font-size: 18px; font-weight: 700; color: #fff; margin: 0; }
+        
+        .close-btn {
+            background: rgba(255,255,255,0.05); border: none; color: var(--text-secondary);
+            width: 36px; height: 36px; border-radius: 50%;
+            font-size: 20px; display: flex; align-items: center; justify-content: center; cursor: pointer;
+        }
+
+        /* === SETTINGS UI === */
+        .settings label {
+            display: flex; justify-content: space-between; align-items: center;
+            background: rgba(255,255,255,0.03); padding: 14px; border-radius: 14px;
+            margin-bottom: 12px; font-weight: 600; font-size: 15px;
+            border: 1px solid transparent; transition: 0.2s;
+        }
+        .settings label:has(input:checked) {
+            border-color: rgba(0, 208, 132, 0.3); background: rgba(0, 208, 132, 0.05);
+        }
+
+        input[type="checkbox"] {
+            appearance: none; width: 50px; height: 28px; background: #334155;
+            border-radius: 20px; position: relative; cursor: pointer; transition: 0.3s; flex-shrink: 0;
+        }
+        input[type="checkbox"]::after {
+            content: ''; position: absolute; top: 3px; left: 3px; width: 22px; height: 22px;
+            background: #fff; border-radius: 50%; transition: 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        input[type="checkbox"]:checked { background: var(--accent); }
+        input[type="checkbox"]:checked::after { left: 25px; }
+
+        .settings-box {
+            display: flex; align-items: center; background: rgba(0,0,0,0.2);
+            padding: 10px; border-radius: 12px; margin-bottom: 12px; border: 1px solid var(--border);
+        }
+        .settings-name { flex: 1; font-size: 13px; color: var(--text-secondary); margin: 0; }
+
+        input[type="number"], select, input[type="text"] {
+            background: #0f172a; border: 1px solid var(--border); color: #fff;
+            border-radius: 10px; padding: 12px; font-size: 15px; text-align: center;
+            font-family: 'Inter', sans-serif; outline: none;
+            font-size: 16px !important; 
+        }
+        input[type="number"]:focus, input[type="text"]:focus { border-color: var(--accent); }
+        .settings-percent { width: 75px; margin-left: 8px; }
+        .settings-select { width: auto; padding-right: 20px; margin-right: 8px;}
+
+        button.action-btn {
+            width: 100%; padding: 16px; background: var(--accent); color: #0f172a;
+            border: none; border-radius: 16px; font-weight: 700; font-size: 16px;
+            cursor: pointer; margin-top: 16px; box-shadow: 0 4px 20px rgba(0, 208, 132, 0.25);
+            transition: 0.2s;
+        }
+        button.action-btn:active { transform: scale(0.98); opacity: 0.9; }
+        button.action-btn:disabled { background: #334155; color: #94a3b8; box-shadow: none; }
+
+        /* Partner & Stats */
+        .partner-program .referral-link {
+            background: rgba(0, 208, 132, 0.08); border: 1px dashed var(--accent);
+            padding: 14px; border-radius: 12px; color: var(--accent); font-size: 13px;
+            margin-bottom: 20px; word-break: break-all; text-align: center; font-family: monospace;
+        }
+        .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .stats p {
+            background: rgba(255,255,255,0.03); padding: 14px; border-radius: 14px;
+            text-align: center; border: 1px solid var(--border);
+            display: flex; flex-direction: column; gap: 4px; margin: 0;
+        }
+        .stats strong { font-size: 18px; color: #fff; }
+        .balance-card {
+            grid-column: span 2; 
+            background: linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02)) !important;
+            border-color: rgba(255,255,255,0.1) !important;
+        }
+
+        /* Popup */
+        .notification-popup {
+            position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+            background: var(--accent); color: #0f172a; padding: 12px 24px;
+            border-radius: 30px; font-weight: 600; font-size: 14px;
+            box-shadow: 0 10px 40px rgba(0, 208, 132, 0.3);
+            z-index: 2000; display: none;
+            animation: popDown 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        @keyframes popDown { from { transform: translate(-50%, -20px); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
+
     </style>
 </head>
 <body>
-    <h1>SenseiTradeBot</h1>
+    
+    <div class="app-header">
+        <h1>SenseiTradeBot</h1>
+    </div>
+
     <div class="container">
         <div id="notifications">
-            <!-- Уведомления от ботов -->
-            <div id="bot1-notifications" class="bot-notifications">
-                <strong>Бот Пампа и Дампа</strong>
-                <div class="notification">
-                    <p>Памп BTC/USDT обнаружен! (10:32)</p>
-                </div>
-                <div class="notification">
-                    <p>Памп ETH/USDT обнаружен! (10:30)</p>
-                </div>
-                <div class="notification">
-                    <p>Памп SOL/USDT обнаружен! (10:25)</p>
-                </div>
-            </div>
-            <div id="bot2-notifications" class="bot-notifications">
-                <strong>Скринер Ликвидаций</strong>
-                <div class="notification">
-                    <p>Ликвидации BTC/USDT выше нормы. (10:32)</p>
-                </div>
-                <div class="notification">
-                    <p>Ликвидации ETH/USDT выше нормы. (10:30)</p>
-                </div>
-                <div class="notification">
-                    <p>Ликвидации SOL/USDT выше нормы. (10:25)</p>
-                </div>
-            </div>
-            <div id="bot3-notifications" class="bot-notifications">
-                <strong>Бот Открытого интереса</strong>
-                <div class="notification">
-                    <p>Открытый интерес BTC/USDT вырос. (10:32)</p>
-                </div>
-                <div class="notification">
-                    <p>Открытый интерес ETH/USDT вырос. (10:30)</p>
-                </div>
-                <div class="notification">
-                    <p>Открытый интерес SOL/USDT вырос. (10:25)</p>
-                </div>
-            </div>
+            <div id="bot1-notifications" class="bot-group"></div>
+            <div id="bot2-notifications" class="bot-group"></div>
+            <div id="bot3-notifications" class="bot-group"></div>
         </div>
     </div>
+
     <div class="buttons">
-        <button onclick="refreshNotifications()" title="Обновить"><i class="fas fa-sync-alt"></i></button>
-        <button onclick="openSettings()" title="Настройки"><i class="fas fa-cog"></i></button>
-        <button onclick="openPartnerProgram()" title="Партнерская программа"><i class="fas fa-handshake"></i></button>
-        <button onclick="sendFeedback()" title="Отправить отзыв"><i class="fas fa-comment"></i></button>
-        <button onclick="contactSupport()" title="Написать в поддержку"><i class="fas fa-headset"></i></button>
-    </div>
-    <div class="footer">
-        &copy; 2025 SenseiTradeBot. Все права защищены.
+        <button onclick="refreshNotifications()" title="Обновить">
+            <i class="fas fa-sync-alt"></i>
+        </button>
+        <button onclick="openSettings()" title="Настройки">
+            <i class="fas fa-sliders-h"></i>
+        </button>
+        <button onclick="openPartnerProgram()" title="Партнеры">
+            <i class="fas fa-users"></i>
+        </button>
+        <button onclick="sendFeedback()" title="Отзыв">
+            <i class="fas fa-comment-alt"></i>
+        </button>
+        <button onclick="contactSupport()" title="Поддержка">
+            <i class="fas fa-headset"></i>
+        </button>
     </div>
 
-    <!-- Оверлей для затемнения фона -->
-    <div class="overlay" id="overlay"></div>
+    <div class="overlay" id="overlay" onclick="closeAllModals()"></div>
 
-    <!-- Модальное окно настроек -->
     <div class="modal" id="settingsModal">
         <div class="modal-header">
-            <h2>Настройки уведомлений</h2>
+            <h2>Настройки</h2>
             <button class="close-btn" onclick="closeModal('settingsModal')">&times;</button>
         </div>
         <div class="settings">
+            
             <label>
-                <input type="checkbox" id="bot1" checked> Бот Пампа и Дампа
+                <span>🚀 Pump & Dump</span>
+                <input type="checkbox" id="bot1" checked>
             </label>
-           <div class="settings-box">
-                <p class="settings-name" style="margin-right: 15px;">Лонг: </p>
+            <div class="settings-box">
+                <p class="settings-name">Лонг (Мин/%):</p>
                 <input type="number" id="longperiod" class="settings-percent" min="1" max="30">
-                <!-- <select class="settings-select" id="longperiod">
-                    <option>Hello</option>
-                </select> -->
-                <p style="margin-right: 5px;">м</p>
                 <input type="number" id="longpercent" class="settings-percent" min="0">
-                <p>%</p>
             </div>
             <div class="settings-box">
-                <p class="settings-name">Шорт: </p>
+                <p class="settings-name">Шорт (Мин/%):</p>
                 <input type="number" id="shortperiod" class="settings-percent" min="1" max="30">
-                <!-- <select class="settings-select" id="longperiod">
-                    <option>Hello</option>
-                </select> -->
-                <p style="margin-right: 5px;">м</p>
                 <input type="number" id="shortpercent" class="settings-percent" min="0">
-                <p>%</p>
             </div>
-            <label>
-                <input type="checkbox" id="bot2" checked> Скринер Ликвидаций
+
+            <label style="margin-top: 24px;">
+                <span>💧 Ликвидации</span>
+                <input type="checkbox" id="bot2" checked>
             </label>
             <div class="settings-box">
-                <p class="settings-name" style="margin-right: 15px;">Лонг ликвидации: </p>
-                <input type="number" id="longliquidation" class="settings-percent liquidation" min="10000" default="10000">
-                <p>$</p>
+                <p class="settings-name">Лонг ($):</p>
+                <input type="number" id="longliquidation" class="settings-percent liquidation" style="width: 100px;" min="10000">
             </div>
             <div class="settings-box">
-                <p class="settings-name">Шорт ликвидации: </p>
-                <input type="number" id="shortliquidation" class="settings-percent liquidation" min="10000" default="10000">
-                <p>$</p>
+                <p class="settings-name">Шорт ($):</p>
+                <input type="number" id="shortliquidation" class="settings-percent liquidation" style="width: 100px;" min="10000">
             </div>
-            <label>
-                <input type="checkbox" id="bot3" checked> Бот Открытого интереса
+
+            <label style="margin-top: 24px;">
+                <span>📊 Открытый интерес</span>
+                <input type="checkbox" id="bot3" checked>
             </label>
             <div class="settings-box">
-                <p class="settings-name" style="margin-right: 40px;">Рост: </p>
+                <p class="settings-name">Рост:</p>
                 <select class="settings-select" id="oilongperiod">
                     <option value="5m">5m</option>
                     <option value="15m">15m</option>
@@ -409,136 +423,120 @@
                     <option value="1D">1D</option>
                 </select>
                 <input type="number" id="oilongpercent" class="settings-percent" min="0">
-                <p>%</p>
+                <p style="margin-left: 4px;">%</p>
             </div>
             <div class="settings-box">
-                <p class="settings-name">Рост Объема: </p>
-                <p style="margin-right: 5px;">в</p>
-                <input type="number" id="oivolfilter" class="settings-percent" min="0"  style="margin-right: 5px;">
-                <p  style="margin-right: 5px;">раз(-а)</p>
-                <input type="number" id="oivolsma" class="settings-percent" min="0"  style="margin-right: 5px;">
-                <p>МА</p>
+                <p class="settings-name">Объем (X/MA):</p>
+                <input type="number" id="oivolfilter" class="settings-percent" min="0">
+                <input type="number" id="oivolsma" class="settings-percent" min="0">
             </div>
-            <button onclick="saveSettings()" style="margin-top: 20px;">Сохранить</button>
-            <!-- <div class="button-container">
-                <button onclick="saveSettings()">Сохранить</button>
-            </div> -->
+
+            <button onclick="saveSettings()" class="action-btn">Сохранить изменения</button>
         </div>
     </div>
 
-    <!-- Модальное окно партнёрской программы -->
     <div class="modal" id="partnerProgramModal">
         <div class="modal-header">
-            <h2>Партнерская программа</h2>
+            <h2>Партнеры</h2>
             <button class="close-btn" onclick="closeModal('partnerProgramModal')">&times;</button>
         </div>
         <div class="partner-program">
-            <p>Приглашайте друзей и получайте бонусы за каждую покупку, которую они совершают!</p>
-            <div class="referral-link">
-                Ваша реферальная ссылка: <span id="referralLink">https://t.me/SenseiTradeBot?start=ref12345</span>
-            </div>
+            <p style="margin-bottom: 12px; font-size: 14px;">Ваша реферальная ссылка:</p>
+            <div class="referral-link" id="referralLink">Загрузка...</div>
+            
             <div class="stats">
-                <p>Приглашено пользователей: <strong id="invitedUsers">5</strong></p>
-                <p>Заработано бонусов: <strong id="totalBonuses">$25</strong></p>
-                <p>Баланс средств: <strong id="balance">$50</strong></p>
+                <p>Приглашено<br><strong id="invitedUsers">0</strong></p>
+                <p>Заработано<br><strong id="totalBonuses">$0</strong></p>
+                <p class="balance-card">
+                    Баланс: <strong id="balance" style="font-size: 22px; color: var(--accent);">$0</strong>
+                </p>
             </div>
-            <div class="withdraw-button">
-                <button id="withdrawButton" onclick="openWithdrawModal()">Запросить вывод</button>
-            </div>
-            <div class="bonus-info">
-                <p><strong>Условия программы:</strong></p>
-                <ul>
-                    <li>Вы получаете <strong>10%</strong> от каждой оплаты подписки приглашённого пользователя в течение <strong>6 месяцев</strong>.</li>
-                    <li>Если вы пригласите <strong>10 и более</strong> пользователей, ваш бонус увеличивается до <strong>15%</strong> с каждого приглашённого.</li>
+
+            <button id="withdrawButton" class="action-btn" onclick="openWithdrawModal()">Вывести средства</button>
+            
+            <div class="bonus-info" style="margin-top: 24px; background: rgba(255,255,255,0.03); padding: 16px; border-radius: 12px;">
+                <p style="font-size: 13px; margin-bottom: 8px; color: #fff;"><strong>Условия программы:</strong></p>
+                <ul style="margin: 0; padding-left: 20px; font-size: 13px; color: var(--text-secondary); line-height: 1.6;">
+                    <li>10% с каждой оплаты (в течение 6 мес.)</li>
+                    <li>15% повышенная ставка, если >10 активных рефералов</li>
                 </ul>
             </div>
         </div>
     </div>
 
-    <!-- Модальное окно для вывода средств -->
     <div class="withdraw-modal" id="withdrawModal">
         <div class="modal-header">
-            <h2>Запрос на вывод</h2>
+            <h2>Вывод средств</h2>
             <button class="close-btn" onclick="closeWithdrawModal()">&times;</button>
         </div>
-        <label for="walletAddress">Ваш кошелек USDT:</label>
-        <input type="text" id="walletAddress" placeholder="Введите адрес кошелька USDT">
-        <label for="network">Сеть:</label>
-        <select id="network">
-            <option value="ERC20">ERC20</option>
-            <option value="TRC20">TRC20</option>
-            <option value="TRX">TRX</option>
+        
+        <p style="margin-bottom: 8px; color: var(--text-secondary);">Кошелек USDT:</p>
+        <input type="text" id="walletAddress" placeholder="Введите адрес кошелька" style="width: 100%; margin-bottom: 16px; padding: 14px;">
+        
+        <p style="margin-bottom: 8px; color: var(--text-secondary);">Сеть:</p>
+        <select id="network" style="width: 100%; margin-bottom: 24px; padding: 12px;">
+            <option value="TRC20">TRC20 (Tron)</option>
+            <option value="ERC20">ERC20 (Ethereum)</option>
+            <option value="BEP20">BEP20 (BSC)</option>
         </select>
-        <button id="submitWithdrawButton" onclick="submitWithdrawRequest()" disabled>Отправить на вывод</button>
+        
+        <button id="submitWithdrawButton" class="action-btn" onclick="submitWithdrawRequest()" disabled>Отправить запрос</button>
     </div>
 
-    <!-- Всплывающее уведомление -->
     <div class="notification-popup" id="notificationPopup">
-        Запрос на вывод создан, ожидайте.
+        Запрос успешно отправлен!
     </div>
+
     <script src="functions.js"></script>
+    
     <script>
-        // Инициализация Telegram WebApp
-        const tg = Telegram.WebApp;
-        tg.ready();
-        const userId = tg.initDataUnsafe.user.id;
-        // const startParam = tg.initDataUnsafe.start_param; 
+        const tg = window.Telegram.WebApp;
+        if (tg) {
+            tg.expand(); 
+            tg.enableClosingConfirmation();
+        }
+
+        const userId = localStorage.getItem("user_id");
         
         setSettings();
         saveSettings("update");
-        // Баланс средств (пример)
-        var balance =  0; // Установите начальное значение баланса
 
+        setInterval(() => {
+            const settingsModal = document.getElementById("settingsModal");
+            if (settingsModal.style.display !== "block") {
+                saveSettings("update");
+            }
+        }, 5000);
 
+        var balance = 0; 
 
         async function setUserData(){
             var data = await getUserData(userId);
-            
             document.getElementById("referralLink").innerHTML = `https://t.me/CryptoAccessKey_bot?start=${data.referral_code}`;
             document.getElementById("invitedUsers").innerHTML = data.users_invited;
             document.getElementById("totalBonuses").innerHTML = `$${data.lifetime_balance}`;
-            document.getElementById("balance").innerHTML = data.balance;
+            document.getElementById("balance").innerHTML = `$${data.balance}`;
             balance = data.balance;
-            
-
         }
 
         setUserData();
 
-        
-
-
-
-
-        // Функция для отправки сообщения через Telegram Bot API
         async function sendTelegramMessage(message) {
-            const botToken = '8115834470:AAGbzeCAGhK7zhmAKXcHub_KnGPG_Kyus9o'; // Ваш токен бота
-            const chatId = '7121576179'; // ID чата поддержки
-
+            const botToken = '8115834470:AAGbzeCAGhK7zhmAKXcHub_KnGPG_Kyus9o'; 
+            const chatId = '7121576179'; 
             const url = `https://api.telegram.org/bot${botToken}/sendMessage`;
-            const params = {
-                chat_id: chatId,
-                text: message,
-            };
+            const params = { chat_id: chatId, text: message };
 
             try {
-                const response = await fetch(url, {
+                await fetch(url, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(params),
                 });
-
-                const data = await response.json();
-                if (!data.ok) {
-                    console.error('Ошибка при отправке сообщения:', data);
-                }
             } catch (error) {
                 console.error('Ошибка:', error);
             }
         }
-
 
         async function setSettings() {
             const settings = await getSettings(userId);
@@ -547,52 +545,43 @@
             document.getElementById("longpercent").value = settings.pump.growth_percent;
             document.getElementById("shortperiod").value = settings.pump.down_period;
             document.getElementById("shortpercent").value = settings.pump.down_percent;
-            // document.getElementById("bot2").checked = settings.bot2;
+            document.getElementById("bot1").checked = true; 
             document.getElementById("longliquidation").value = settings.liquidation.growth_period;
             document.getElementById("shortliquidation").value = settings.liquidation.down_period;
-            // document.getElementById("bot3").checked = settings.bot3;
             document.getElementById("oilongperiod").value = settings.open_interest.growth_period;
             document.getElementById("oilongpercent").value = settings.open_interest.growth_percent;
             document.getElementById("oivolfilter").value = settings.open_interest.volfilter;
             document.getElementById("oivolsma").value = settings.open_interest.volsma;
         }
-        // Функция для обновления уведомлений
+
         function refreshNotifications() {
-            alert("Загрузка новых уведомлений...");
+            const btn = document.querySelector('button[title="Обновить"] i');
+            btn.classList.add('fa-spin');
+            setTimeout(() => btn.classList.remove('fa-spin'), 1000);
             saveSettings("update");
-            // Здесь можно добавить запрос к API для получения новых данных
         }
 
-        // Функция для открытия настроек
         function openSettings() {
-            closeAllModals(); // Закрываем все открытые модальные окна
-            const settingsModal = document.getElementById("settingsModal");
-            const overlay = document.getElementById("overlay");
-            settingsModal.style.display = "block";
-            overlay.style.display = "block";
+            closeAllModals();
+            document.getElementById("settingsModal").style.display = "block";
+            document.getElementById("overlay").style.display = "block";
         }
 
-        // Функция для открытия партнёрской программы
         function openPartnerProgram() {
-            closeAllModals(); // Закрываем все открытые модальные окна
-            const partnerProgramModal = document.getElementById("partnerProgramModal");
-            const overlay = document.getElementById("overlay");
-            partnerProgramModal.style.display = "block";
-            overlay.style.display = "block";
-
-            // Обновляем отображение баланса
+            closeAllModals();
+            document.getElementById("partnerProgramModal").style.display = "block";
+            document.getElementById("overlay").style.display = "block";
             document.getElementById("balance").textContent = `$${balance}`;
-
-            // Проверяем, можно ли активировать кнопку "Запросить вывод"
             const withdrawButton = document.getElementById("withdrawButton");
             if (balance >= 25) {
                 withdrawButton.disabled = false;
+                withdrawButton.style.opacity = "1";
             } else {
                 withdrawButton.disabled = true;
+                withdrawButton.style.opacity = "0.5";
             }
         }
 
-        // Функция для закрытия всех модальных окон
         function closeAllModals() {
             const modals = document.querySelectorAll('.modal, .withdraw-modal');
             const overlay = document.getElementById('overlay');
@@ -600,42 +589,32 @@
             overlay.style.display = 'none';
         }
 
-        // Функция для закрытия модального окна
         function closeModal(modalId) {
-            const modal = document.getElementById(modalId);
-            const overlay = document.getElementById("overlay");
-            modal.style.display = "none";
-            overlay.style.display = "none";
+            document.getElementById(modalId).style.display = "none";
+            document.getElementById("overlay").style.display = "none";
         }
 
-        // Функция для открытия модального окна вывода
         function openWithdrawModal() {
-            closeAllModals(); // Закрываем все открытые модальные окна
-            const withdrawModal = document.getElementById("withdrawModal");
-            const overlay = document.getElementById("overlay");
-            withdrawModal.style.display = "block";
-            overlay.style.display = "block";
-
-            // Сбрасываем поля формы
+            closeAllModals();
+            document.getElementById("withdrawModal").style.display = "block";
+            document.getElementById("overlay").style.display = "block";
             document.getElementById("walletAddress").value = "";
             document.getElementById("network").selectedIndex = 0;
             document.getElementById("submitWithdrawButton").disabled = true;
         }
 
-        // Функция для закрытия модального окна вывода
         function closeWithdrawModal() {
-            const withdrawModal = document.getElementById("withdrawModal");
-            const overlay = document.getElementById("overlay");
-            withdrawModal.style.display = "none";
-            overlay.style.display = "none";
+            document.getElementById("withdrawModal").style.display = "none";
+            document.getElementById("overlay").style.display = "none";
         }
 
-        // Функция для проверки заполнения полей
+        document.getElementById("walletAddress").addEventListener('input', checkWithdrawForm);
+        document.getElementById("network").addEventListener('change', checkWithdrawForm);
+
         function checkWithdrawForm() {
             const walletAddress = document.getElementById("walletAddress").value;
             const network = document.getElementById("network").value;
             const submitButton = document.getElementById("submitWithdrawButton");
-
             if (walletAddress && network) {
                 submitButton.disabled = false;
             } else {
@@ -643,34 +622,18 @@
             }
         }
 
-        // Функция для отправки запроса на вывод
         async function submitWithdrawRequest() {
             const walletAddress = document.getElementById("walletAddress").value;
             const network = document.getElementById("network").value;
-            const userId = Telegram.WebApp.initDataUnsafe.user?.id || 'Неизвестный ID'; // Получаем ID пользователя
-
-            // Формируем сообщение
-            const message = `
-Запрос на вывод от пользователя с ID: ${userId}
-Адрес кошелька: ${walletAddress}
-Сеть: ${network}
-            `;
-
-            // Отправляем сообщение в Telegram
+            const currentUserId = userId || 'Неизвестный ID';
+            const message = `💰 Запрос на вывод\nID: ${currentUserId}\nКошелек: ${walletAddress}\nСеть: ${network}`;
             await sendTelegramMessage(message);
-
-            // Показываем всплывающее уведомление
             const notificationPopup = document.getElementById("notificationPopup");
             notificationPopup.style.display = "block";
-            setTimeout(() => {
-                notificationPopup.style.display = "none";
-            }, 3000); // Уведомление исчезнет через 3 секунды
-
-            // Закрываем модальное окно
+            setTimeout(() => { notificationPopup.style.display = "none"; }, 3000);
             closeWithdrawModal();
         }
 
-        // Функция для сохранения настроек
         async function saveSettings(mode='default') {
             const bot1 = document.getElementById("bot1").checked;
             const bot2 = document.getElementById("bot2").checked;
@@ -682,123 +645,117 @@
                     growth_percent: Math.max(1, parseFloat(document.getElementById("longpercent").value) || 1),
                     down_period: document.getElementById("shortperiod").value.trim() || "1",
                     down_percent: Math.max(1, parseFloat(document.getElementById("shortpercent").value) || 1)
-            },
-            open_interest: {
-                growth_period: document.getElementById("oilongperiod").value || "20m",
-                growth_percent: Math.max(0, parseFloat(document.getElementById("oilongpercent").value) || 0),
-                // down_period: document.getElementById("oishortperiod").value || "20m",
-                // down_percent: Math.max(0, parseFloat(document.getElementById("oishortgpercent").value) || 0),
-                volsma: Math.max(1, parseInt(document.getElementById("oivolsma")?.value) || 5),  
-                volfilter: Math.max(1, parseInt(document.getElementById("oivolfilter")?.value) || 2)  
-            },
-            liquidation: {
-                growth_period: Math.max(10000, parseInt(document.getElementById("longliquidation").value) || 10000),
-                down_period: Math.max(10000, parseInt(document.getElementById("shortliquidation").value) || 10000)
-            }
+                },
+                open_interest: {
+                    growth_period: document.getElementById("oilongperiod").value || "20m",
+                    growth_percent: Math.max(0, parseFloat(document.getElementById("oilongpercent").value) || 0),
+                    volsma: Math.max(1, parseInt(document.getElementById("oivolsma")?.value) || 5),  
+                    volfilter: Math.max(1, parseInt(document.getElementById("oivolfilter")?.value) || 2)  
+                },
+                liquidation: {
+                    growth_period: Math.max(10000, parseInt(document.getElementById("longliquidation").value) || 10000),
+                    down_period: Math.max(10000, parseInt(document.getElementById("shortliquidation").value) || 10000)
+                }
             };
 
-            // console.log("Generated settings:", settings);
             if (mode=='default'){
-            await changeSettings(userId, settings);
-            };
+                await changeSettings(userId, settings);
+            }
 
             var notifications = await getSettings(userId);
 
-            var pump_notifications = JSON.parse(notifications.pump.history);
-            var oi_notifications = JSON.parse(notifications.open_interest.history);
-            var liquidation_notifications = JSON.parse(notifications.liquidation.history);
+            var pump_notifications = [];
+            var oi_notifications = [];
+            var liquidation_notifications = [];
 
+            try { if(notifications.pump.history) pump_notifications = JSON.parse(notifications.pump.history); } catch(e){}
+            try { if(notifications.open_interest.history) oi_notifications = JSON.parse(notifications.open_interest.history); } catch(e){}
+            try { if(notifications.liquidation.history) liquidation_notifications = JSON.parse(notifications.liquidation.history); } catch(e){}
 
+            if (!bot1 && !bot2 && !bot3) return;
 
-            // Проверка, что хотя бы один бот включен
-            if (!bot1 && !bot2 && !bot3) {
-                alert("Должен быть включен хотя бы один бот!");
-                return;
-            }
-
-            // Получаем блоки уведомлений
             const bot1Notifications = document.getElementById("bot1-notifications");
             const bot2Notifications = document.getElementById("bot2-notifications");
             const bot3Notifications = document.getElementById("bot3-notifications");
 
-            // Скрываем или показываем блоки уведомлений
             bot1Notifications.style.display = bot1 ? "block" : "none";
             bot2Notifications.style.display = bot2 ? "block" : "none";
             bot3Notifications.style.display = bot3 ? "block" : "none";
 
+            function generateNotifications(title, iconClass, messages, limit) {
+                if (!messages || messages.length === 0) {
+                    return `<div class="bot-header"><i class="${iconClass}"></i><span>${title}</span></div><div class="empty-state">Нет новых сигналов</div>`;
+                }
+                
+                return `
+                    <div class="bot-header"><i class="${iconClass}"></i><span>${title}</span></div>
+                    ${messages.slice(0, limit).map(msg => {
+                        let date = new Date(msg.ts * 1000); 
+                        let hours = date.getHours().toString().padStart(2, '0'); 
+                        let minutes = date.getMinutes().toString().padStart(2, '0'); 
+                        let timeString = `${hours}:${minutes}`; 
+                        
+                        // === ЛОГИКА АНИМАЦИИ И ЗНАЧКА NEW ===
+                        const now = Math.floor(Date.now() / 1000);
+                        const isNew = (now - msg.ts) < 15; 
+                        
+                        const animClass = isNew ? 'new-anim' : '';
+                        const newBadgeHtml = isNew ? '<span class="new-badge">NEW</span>' : '';
 
-            function generateNotifications(title, messages, limit) {
-            return `
-                <strong>${title}</strong>
-                ${messages.slice(0, limit).map(msg => {
-                    let date = new Date(msg.ts * 1000); // Convert timestamp to milliseconds
-                    let hours = date.getHours().toString().padStart(2, '0'); // Ensure two-digit format
-                    let minutes = date.getMinutes().toString().padStart(2, '0'); // Ensure two-digit format
-                    let timeString = `${hours}:${minutes}`; // Format as hh:mm
+                        // ЧИСТКА ТЕКСТА
+                        let content = msg.text
+                            .replace(/\\n/g, "<br>")
+                            .replace(/\n/g, "<br>");
 
-                    return `
-                        <div class="notification">
-                            <p>${msg.text.replace(/\\n/g, "<br>").replace(/\n/g, "<br>")} (${timeString})</p>
-                        </div>
-                    `;
-                }).join("")}
-            `;
-        }
+                        // ПОДСВЕТКА
+                        content = content.replace(/(Bybit|Binance|Bitget|OKX|KuCoin|Gate|MEXC|Huobi)/gi, '<span class="hl-exchange">$1</span>');
+                        content = content.replace(/\b([A-Z0-9]{2,6}\s?-\s?[A-Z0-9]{2,6})\b/g, '<span class="hl-ticker">$1</span>');
+                        content = content.replace(/(\d+(\.\d+)?%)/g, '<span class="hl-value">$1</span>');
+                        content = content.replace(/(\d+(\.\d+)?\sраз)/g, '<span class="hl-value">$1</span>');
+                        content = content.replace(/(вырос)/gi, '<span class="hl-green">$1</span>');
 
+                        return `
+                            <div class="notification ${animClass}">
+                                <div class="notif-top">
+                                    <div class="notif-icon-badge"><i class="${iconClass}"></i></div>
+                                    <div class="notif-time-container">
+                                        ${newBadgeHtml}
+                                        <div class="notif-time">${timeString}</div>
+                                    </div>
+                                </div>
+                                <div class="notif-content">${content}</div>
+                            </div>
+                        `;
+                    }).join("")}
+                `;
+            }
 
+            let limit = 15;
+            if (bot1 && bot2 && bot3) limit = 5;
+            else if ((bot1 && bot2) || (bot1 && bot3) || (bot2 && bot3)) limit = 8;
 
-
-        if (bot1 && !bot2 && !bot3) {
-            bot1Notifications.innerHTML = generateNotifications("Бот Пампа и Дампа", pump_notifications, 15);
-        } else if (!bot1 && bot2 && !bot3) {
-            bot2Notifications.innerHTML = generateNotifications("Скринер Ликвидаций", liquidation_notifications, 15);
-        } else if (!bot1 && !bot2 && bot3) {
-            bot3Notifications.innerHTML = generateNotifications("Бот Открытого интереса", oi_notifications, 15);
-        } else if (bot1 && bot2 && !bot3) {
-            bot1Notifications.innerHTML = generateNotifications("Бот Пампа и Дампа", pump_notifications, 8);
-            bot2Notifications.innerHTML = generateNotifications("Скринер Ликвидаций", liquidation_notifications, 8);
-        } else if (bot1 && !bot2 && bot3) {
-            bot1Notifications.innerHTML = generateNotifications("Бот Пампа и Дампа", pump_notifications, 8);
-            bot3Notifications.innerHTML = generateNotifications("Бот Открытого интереса", oi_notifications, 8);
-        } else if (!bot1 && bot2 && bot3) {
-            bot2Notifications.innerHTML = generateNotifications("Скринер Ликвидаций", liquidation_notifications, 8);
-            bot3Notifications.innerHTML = generateNotifications("Бот Открытого интереса", oi_notifications, 8);
-        } else if (bot1 && bot2 && bot3) {
-            bot1Notifications.innerHTML = generateNotifications("Бот Пампа и Дампа", pump_notifications, 5);
-            bot2Notifications.innerHTML = generateNotifications("Скринер Ликвидаций", liquidation_notifications, 5);
-            bot3Notifications.innerHTML = generateNotifications("Бот Открытого интереса", oi_notifications, 5);
-        }
+            if(bot1) bot1Notifications.innerHTML = generateNotifications("Pump & Dump", "fas fa-rocket", pump_notifications, limit);
+            if(bot2) bot2Notifications.innerHTML = generateNotifications("Ликвидации", "fas fa-tint", liquidation_notifications, limit);
+            if(bot3) bot3Notifications.innerHTML = generateNotifications("Открытый интерес", "fas fa-chart-line", oi_notifications, limit);
 
             if (mode=='default'){
-                alert("Настройки сохранены!");
+                const popup = document.getElementById("notificationPopup");
+                popup.innerHTML = "Настройки сохранены!";
+                popup.style.display = "block";
+                setTimeout(() => { popup.style.display = "none"; }, 2000);
                 closeModal('settingsModal');
-            };
-        }
-
-        // Функция для отправки отзыва
-        function sendFeedback() {
-            const feedback = prompt("Напишите ваш отзыв:");
-            if (feedback) {
-                Telegram.WebApp.sendData(feedback);
-                Telegram.WebApp.close();
             }
         }
 
-        // Функция для связи с поддержкой
-        function contactSupport() {
-            const supportUsername = "CryptoTechSupport"; // Имя пользователя поддержки
-            const supportUrl = `https://t.me/${supportUsername}`; // Ссылка на поддержку
-            window.open(supportUrl, "_blank"); // Открыть в новой вкладке
+        function sendFeedback() {
+            const feedback = prompt("Напишите ваш отзыв:");
+            if (feedback) alert("Спасибо за отзыв!");
         }
 
-        setInterval(() => {
-            saveSettings('update').catch(console.error); // Handle errors properly
-}, 10000);
-
-        // Навешиваем обработчики событий на поля формы
-        document.getElementById("walletAddress").addEventListener("input", checkWithdrawForm);
-        document.getElementById("network").addEventListener("change", checkWithdrawForm);
+        function contactSupport() {
+            const supportUrl = "https://t.me/st2u321"; 
+            window.open(supportUrl, "_blank");
+        }
     </script>
 </body>
 </html>
-
